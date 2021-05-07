@@ -20,5 +20,9 @@
       },
       "description": "Open Barak"
     }
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
   }
 }
