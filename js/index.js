@@ -5,12 +5,12 @@ fetch(url)
   .then((data) => init(data));
 
 function createTable(jsonData) {
-  var col = ['', '마켓', '현재가', '전일대비', '거래대금'];
+  var col = ['', '마켓', '현재가', '전일대비', '거래대금', '알림'];
 
   var tableHeader = document.createElement('table');
   tableHeader.id = 'coinHeader';
   tableHeader.innerHTML =
-    '<colgroup><col width="25px"><col width="20%"/><col width="55px"/><col width="60px"/><col width="22%"/></colgroup>';
+    '<colgroup><col width="25px"><col width="18%"/><col width="55px"/><col width="60px"/><col width="22%"/><col width="35px"/></colgroup>';
 
   var thead = tableHeader.createTHead(); // TABLE ROW.
   var sort = localStorage.getItem('sort')
@@ -26,17 +26,17 @@ function createTable(jsonData) {
       th.colSpan = 2;
       th.innerHTML = col[i] + ' <i class="fas fa-exchange-alt"></i>';
     } else if (i > 1) {
-      //fa-sort-up fa-sort-down
       if (i == getSortIndexBySortItem(sortItem)) {
         th.innerHTML = col[i] + ' <i class="fas fa-sort-' + sort + '"></i>';
-      } else {
+      } else if (i < col.length - 1) {
         th.innerHTML = col[i] + ' <i class="fas fa-sort"></i>';
+      } else {
+        th.innerHTML = col[i];
       }
     }
-    if (i >= 3) th.style = 'text-align:right';
+    if (i >= 3 && i < col.length - 1) th.style = 'text-align:right';
     thead.appendChild(th);
   }
-
   function getSortIndexBySortItem(sortItem) {
     switch (sortItem) {
       case 'trade_price':
@@ -49,18 +49,18 @@ function createTable(jsonData) {
         return 0;
     }
   }
-
   var className = [
     'bookmark',
     'market',
     'trade_price',
     'percent',
     'acc_trade_price_24h',
+    'notice',
   ];
 
   var table = document.createElement('table');
   table.innerHTML =
-    '<colgroup><col width="25px"><col width="20%"/><col width="55px"/><col width="60px"/><col width="22%"/></colgroup>';
+    '<colgroup><col width="25px"><col width="18%"/><col width="55px"/><col width="60px"/><col width="22%"/><col width="35px"/></colgroup>';
   table.id = 'coinList';
   jsonData.sort(function (a, b) {
     if (sort == 'up') {
@@ -117,6 +117,11 @@ function createTable(jsonData) {
         tabCell.innerHTML =
           '<p class="signed_change_rate"></p><span class="signed_change_price"></span>';
       }
+      if (j == col.length - 1)
+        tabCell.innerHTML =
+          '<i class="far fa-bell" data="' +
+          jsonData[i][className[1]] +
+          '"></i>';
       tabCell.className = className[j];
     }
   }
@@ -237,6 +242,41 @@ function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var arr = new Uint8Array(evt.data);
   var jsonData = JSON.parse(enc.decode(arr));
+  var coinNoticeJson = localStorage.getItem('coinNotice')
+    ? JSON.parse(localStorage.getItem('coinNotice'))
+    : [];
+  for (var key in coinNoticeJson) {
+    if (
+      coinNoticeJson[key].market == jsonData.code &&
+      coinNoticeJson[key]?.notice
+        ?.split(',')
+        ?.includes(String(jsonData.trade_price))
+    ) {
+      var currentTime = new Date();
+      alertify.set('notifier', 'position', 'top-center');
+      alertify.notify(
+        `<h2>지정가 도달<br/></h2><h3 style="line-height:25px">${currentTime.toLocaleTimeString()} <br/>${
+          document.getElementsByClassName(jsonData.code)[0].textContent
+        }(${jsonData.code.split('-')[1]}/${
+          jsonData.code.split('-')[0]
+        })<br/>${jsonData.trade_price.toLocaleString(navigator.language, {
+          maximumFractionDigits: 2,
+        })}원</h3>`,
+        'custom',
+        0
+      );
+      for (var key in coinNoticeJson) {
+        if (coinNoticeJson[key].market == jsonData.code) {
+          coinNoticeJson.splice(key, 1);
+        }
+      }
+      localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
+      chrome.runtime.sendMessage('backgroundNotice', () => {
+        return true;
+      });
+    }
+  }
+
   var privPrice = document
     .getElementById(jsonData.code)
     .getElementsByClassName('trade_price')[0].textContent;
@@ -462,7 +502,7 @@ function createNoneBookmarkTextCell() {
   var row = document.getElementById('coinHeader').insertRow(-1);
   var cell = row.insertCell(-1);
   row.id = 'noBookmark';
-  cell.colSpan = 5;
+  cell.colSpan = 6;
   cell.style = 'text-align:center; padding: 30px 0;';
   cell.innerHTML =
     '즐겨찾기한 코인이 없습니다.<br/><a id="showCoinListBtn">코인 목록</a>';
@@ -515,6 +555,67 @@ function customAddEventListener() {
     link.addEventListener('click', openUpbitPage);
   }
 
+  var noticeBtns = document.querySelectorAll('i[class="far fa-bell"]');
+
+  for (var noticeBtn of noticeBtns) {
+    noticeBtn.addEventListener('click', function () {
+      openNoticeModal(this);
+    });
+  }
+
+  function openNoticeModal(el) {
+    var coinId = el.getAttribute('data');
+    var coinName = document
+      .getElementById(coinId)
+      .getElementsByClassName('market')[0]
+      .getElementsByClassName(coinId)[0].textContent;
+    var coinPrice = document
+      .getElementById(coinId)
+      .getElementsByClassName('trade_price')[0]
+      .textContent.replace(/,/g, '');
+    var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
+    var coinNoticePrice;
+    for (var key in coinNoticeJson) {
+      if (coinNoticeJson[key].market == coinId) {
+        coinNoticePrice = coinNoticeJson[key].notice;
+      }
+    }
+    var contentString;
+    if (coinNoticePrice != undefined) {
+      contentString = `지정가 알림 설정<br/> 현재 설정된 알림 : ${coinNoticePrice} <br/>※호가 단위에 맞게 알림 가격을 설정해 주세요.`;
+    } else {
+      contentString = `지정가 알림 설정<br/> ※호가 단위에 맞게 알림 가격을 설정해 주세요.`;
+    }
+    alertify.prompt(
+      coinName,
+      contentString,
+      coinPrice,
+      function (evt, value) {
+        var coinNoticeJson =
+          JSON.parse(localStorage.getItem('coinNotice')) || [];
+        for (var key in coinNoticeJson) {
+          if (coinNoticeJson[key].market == coinId) {
+            coinNoticeJson.splice(key, 1);
+          }
+        }
+        coinNoticeJson.push({ market: coinId, notice: value });
+        localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
+        alertify.set('notifier', 'position', 'top-center');
+        alertify.set('notifier', 'delay', 3);
+        alertify.success(
+          `지정가 알림 설정<br/>${coinName} : ${value}`,
+          'position',
+          'top-center',
+          1
+        );
+        chrome.runtime.sendMessage('backgroundNotice', () => {
+          return true;
+        });
+      },
+      function () {}
+    );
+  }
+
   var bookmarkStatus =
     JSON.parse(localStorage.getItem('bookmarkStatus')) || false;
   if (bookmarkStatus) {
@@ -535,7 +636,7 @@ function customAddEventListener() {
   }
 
   function setSort(thisObj, index) {
-    for (var i = 0; i < document.getElementsByTagName('th').length; i++) {
+    for (var i = 0; i < document.getElementsByTagName('th').length - 1; i++) {
       if (i != index - 1 && i != 0)
         document
           .getElementsByTagName('th')
@@ -640,6 +741,11 @@ window.onload = function () {
   document.getElementById('color_mode').addEventListener('change', function () {
     colorModePreview(this);
   });
+
+  var coinNotice = localStorage.getItem('coinNotice');
+  if (coinNotice == null) {
+    localStorage.setItem('coinNotice', '[]');
+  }
 
   document.getElementById('searchCoinInput').focus();
 };

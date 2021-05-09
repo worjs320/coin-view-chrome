@@ -253,6 +253,11 @@ p.by a {
 .fa-arrow-alt-circle-left:before {
   content: '\f359';
 }
+.fa-bell:before {
+  content: '\f0f3';
+  color: #b0b0b0;
+  cursor: pointer;
+}
 #showCoinListBtn {
   border-radius: 6px;
   margin: 7px;

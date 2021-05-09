@@ -1,3 +1,6 @@
+* {
+  font-family: 'Noto Sans KR', sans-serif;
+}
 ::-webkit-scrollbar {
   display: none;
 }
@@ -264,4 +267,8 @@ td {
 #tableHeader {
   min-width: 360px;
   max-width: 500px;
+}
+
+.notice {
+  text-align: center;
 }
