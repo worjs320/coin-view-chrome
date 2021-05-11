@@ -67,7 +67,7 @@ function onMessage(evt) {
         ?.split(',')
         ?.includes(String(jsonData.trade_price))
     ) {
-      chrome.pageAction.show();
+      chrome.tabs.create({ url: 'index.html' });
     }
   }
 }
