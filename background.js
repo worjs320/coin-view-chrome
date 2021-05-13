@@ -67,7 +67,25 @@ function onMessage(evt) {
         ?.split(',')
         ?.includes(String(jsonData.trade_price))
     ) {
-      chrome.tabs.create({ url: 'index.html' });
+      var currentTime = new Date();
+      chrome.notifications.create('', {
+        title: '지정가 도달',
+        message: `${currentTime.toLocaleTimeString()} \n${
+          jsonData.code.split('-')[1]
+        }/${
+          jsonData.code.split('-')[0]
+        } : ${jsonData.trade_price.toLocaleString(navigator.language, {
+          maximumFractionDigits: 2,
+        })}원 `,
+        iconUrl: '/barak_icon_128px.png',
+        type: 'basic',
+      });
+      for (var key in coinNoticeJson) {
+        if (coinNoticeJson[key].market == jsonData.code) {
+          coinNoticeJson.splice(key, 1);
+        }
+      }
+      localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
     }
   }
 }
