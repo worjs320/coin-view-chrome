@@ -242,40 +242,6 @@ function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var arr = new Uint8Array(evt.data);
   var jsonData = JSON.parse(enc.decode(arr));
-  var coinNoticeJson = localStorage.getItem('coinNotice')
-    ? JSON.parse(localStorage.getItem('coinNotice'))
-    : [];
-  for (var key in coinNoticeJson) {
-    if (
-      coinNoticeJson[key].market == jsonData.code &&
-      coinNoticeJson[key]?.notice
-        ?.split(',')
-        ?.includes(String(jsonData.trade_price))
-    ) {
-      var currentTime = new Date();
-      alertify.set('notifier', 'position', 'top-center');
-      alertify.notify(
-        `<h2>지정가 도달<br/></h2><h3 style="line-height:25px">${currentTime.toLocaleTimeString()} <br/>${
-          document.getElementsByClassName(jsonData.code)[0].textContent
-        }(${jsonData.code.split('-')[1]}/${
-          jsonData.code.split('-')[0]
-        })<br/>${jsonData.trade_price.toLocaleString(navigator.language, {
-          maximumFractionDigits: 2,
-        })}원</h3>`,
-        'custom',
-        0
-      );
-      for (var key in coinNoticeJson) {
-        if (coinNoticeJson[key].market == jsonData.code) {
-          coinNoticeJson.splice(key, 1);
-        }
-      }
-      localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
-      chrome.runtime.sendMessage('backgroundNotice', () => {
-        return true;
-      });
-    }
-  }
 
   var privPrice = document
     .getElementById(jsonData.code)
@@ -283,14 +249,12 @@ function onMessage(evt) {
 
   document
     .getElementById(jsonData.code)
-    .getElementsByClassName(
-      'trade_price'
-    )[0].innerHTML = jsonData.trade_price.toLocaleString();
+    .getElementsByClassName('trade_price')[0].innerHTML =
+    jsonData.trade_price.toLocaleString();
   document
     .getElementById(jsonData.code)
-    .getElementsByClassName(
-      'signed_change_rate'
-    )[0].innerHTML = getPercentNumber(jsonData.signed_change_rate);
+    .getElementsByClassName('signed_change_rate')[0].innerHTML =
+    getPercentNumber(jsonData.signed_change_rate);
 
   var currentPrice = jsonData.trade_price.toLocaleString();
   if (privPrice != currentPrice && privPrice != '') {
@@ -316,9 +280,8 @@ function onMessage(evt) {
   }
   document
     .getElementById(jsonData.code)
-    .getElementsByClassName(
-      'signed_change_price'
-    )[0].innerHTML = getPlusMinusNumber(jsonData.signed_change_price);
+    .getElementsByClassName('signed_change_price')[0].innerHTML =
+    getPlusMinusNumber(jsonData.signed_change_price);
 
   document
     .getElementById(jsonData.code)
