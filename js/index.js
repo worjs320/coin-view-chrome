@@ -564,12 +564,10 @@ function customAddEventListener() {
         coinNoticeJson.push({ market: coinId, notice: value });
         localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
         alertify.set('notifier', 'position', 'top-center');
-        alertify.set('notifier', 'delay', 3);
-        alertify.success(
-          `지정가 알림 설정<br/>${coinName} : ${value}`,
-          'position',
-          'top-center',
-          1
+        alertify.set('notifier', 'delay', 100);
+        alertify.message(
+          `<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${value}KRW</h3>`,
+          2
         );
         chrome.runtime.sendMessage('backgroundNotice', () => {
           return true;
