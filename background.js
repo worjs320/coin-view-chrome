@@ -2,6 +2,7 @@ var globalData = [];
 var websocket;
 init();
 function init() {
+  if (websocket != undefined) websocket.close();
   globalData = [];
   var marketString = '';
   var coinNoticeJson = localStorage.getItem('coinNotice')
@@ -22,7 +23,6 @@ function init() {
 }
 
 function webSocketConfig() {
-  if (websocket != undefined) websocket.close();
   var wsUri = 'wss://api.upbit.com/websocket/v1';
   websocket = new WebSocket(wsUri);
   websocket.binaryType = 'arraybuffer';
@@ -35,9 +35,9 @@ function webSocketConfig() {
     onMessage(evt);
   };
 
-  websocket.onclose = function () {};
+  // websocket.onclose = function () {};
 
-  websocket.onerror = function () {};
+  // websocket.onerror = function () {};
 }
 
 function onOpen() {
@@ -92,5 +92,4 @@ function onMessage(evt) {
 
 chrome.runtime.onMessage.addListener(() => {
   init();
-  return true;
 });

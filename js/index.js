@@ -569,9 +569,7 @@ function customAddEventListener() {
           `<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${value}KRW</h3>`,
           2
         );
-        chrome.runtime.sendMessage('backgroundNotice', () => {
-          return true;
-        });
+        chrome.runtime.sendMessage('');
       },
       function () {}
     );
