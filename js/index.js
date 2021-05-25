@@ -545,9 +545,12 @@ function customAddEventListener() {
     }
     var contentString;
     if (coinNoticePrice != undefined) {
-      contentString = `지정가 알림 설정<br/> 현재 설정된 알림 : ${coinNoticePrice} <br/>※호가 단위에 맞게 알림 가격을 설정해 주세요.`;
+      contentString = `※호가 단위에 맞게 가격을 설정해 주세요.<h4>
+      현재 설정된 알림 가격 : ${Number(
+        coinNoticePrice
+      ).toLocaleString()}KRW</h4>`;
     } else {
-      contentString = `지정가 알림 설정<br/> ※호가 단위에 맞게 알림 가격을 설정해 주세요.`;
+      contentString = `※ 호가 단위에 맞게 가격을 설정해 주세요.`;
     }
     alertify.prompt(
       coinName,
