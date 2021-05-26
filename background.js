@@ -1,6 +1,5 @@
 var globalData = [];
 var websocket;
-init();
 function init() {
   if (websocket != undefined) websocket.close();
   globalData = [];
@@ -57,6 +56,7 @@ function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var arr = new Uint8Array(evt.data);
   var jsonData = JSON.parse(enc.decode(arr));
+  console.log(jsonData);
   var coinNoticeJson = localStorage.getItem('coinNotice')
     ? JSON.parse(localStorage.getItem('coinNotice'))
     : [];
@@ -86,6 +86,7 @@ function onMessage(evt) {
         }
       }
       localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
+      init();
     }
   }
 }
