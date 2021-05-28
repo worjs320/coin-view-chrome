@@ -264,8 +264,7 @@ td {
 #tableBody {
   min-width: 360px;
   max-width: 500px;
-  height: 83vh;
-  overflow: hidden;
+  height: 450px;
 }
 #tableHeader {
   min-width: 360px;
