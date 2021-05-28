@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Barak - Upbit API 기반 비트코인(Bitcoin) 시세 현황판",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Upbit API 기반 비트코인(Bitcoin) 시세 현황판입니다.",
   "icons": {
     "16": "./barak_icon.png",
@@ -18,7 +18,7 @@
         "default": "Alt+X",
         "mac": "Alt+X"
       },
-      "description": "Open Barak"
+      "description": "Barak"
     }
   },
   "background": {
