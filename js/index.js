@@ -10,7 +10,7 @@ function createTable(jsonData) {
   var tableHeader = document.createElement('table');
   tableHeader.id = 'coinHeader';
   tableHeader.innerHTML =
-    '<colgroup><col width="25px"><col width="18%"/><col width="55px"/><col width="60px"/><col width="22%"/><col width="35px"/></colgroup>';
+    '<colgroup><col width="25px"><col width="22%"/><col width="55px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
 
   var thead = tableHeader.createTHead(); // TABLE ROW.
   var sort = localStorage.getItem('sort')
@@ -60,7 +60,7 @@ function createTable(jsonData) {
 
   var table = document.createElement('table');
   table.innerHTML =
-    '<colgroup><col width="25px"><col width="18%"/><col width="55px"/><col width="60px"/><col width="22%"/><col width="35px"/></colgroup>';
+    '<colgroup><col width="25px"><col width="22%"/><col width="55px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
   table.id = 'coinList';
   jsonData.sort(function (a, b) {
     if (sort == 'up') {
@@ -545,10 +545,8 @@ function customAddEventListener() {
     }
     var contentString;
     if (coinNoticePrice != undefined) {
-      contentString = `※호가 단위에 맞게 가격을 설정해 주세요.<h4>
-      현재 설정된 알림 가격 : ${Number(
-        coinNoticePrice
-      ).toLocaleString()}KRW</h4>`;
+      contentString = `※호가 단위에 맞게 가격을 설정해 주세요.<h4 style="margin:3px 0px">
+      현재 설정된 알림 : ${Number(coinNoticePrice).toLocaleString()}KRW</h4>`;
     } else {
       contentString = `※ 호가 단위에 맞게 가격을 설정해 주세요.`;
     }
@@ -569,7 +567,9 @@ function customAddEventListener() {
         alertify.set('notifier', 'position', 'top-center');
         alertify.set('notifier', 'delay', 100);
         alertify.message(
-          `<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${value}KRW</h3>`,
+          `<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${Number(
+            value
+          ).toLocaleString()}KRW</h3>`,
           2
         );
         chrome.runtime.sendMessage('');
