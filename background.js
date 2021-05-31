@@ -1,5 +1,6 @@
 var globalData = [];
 var websocket;
+init();
 function init() {
   if (websocket != undefined) websocket.close();
   globalData = [];
@@ -33,10 +34,6 @@ function webSocketConfig() {
   websocket.onmessage = function (evt) {
     onMessage(evt);
   };
-
-  // websocket.onclose = function () {};
-
-  // websocket.onerror = function () {};
 }
 
 function onOpen() {
@@ -56,7 +53,6 @@ function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var arr = new Uint8Array(evt.data);
   var jsonData = JSON.parse(enc.decode(arr));
-  console.log(jsonData);
   var coinNoticeJson = localStorage.getItem('coinNotice')
     ? JSON.parse(localStorage.getItem('coinNotice'))
     : [];
@@ -69,14 +65,12 @@ function onMessage(evt) {
     ) {
       var currentTime = new Date();
       chrome.notifications.create('', {
-        title: '지정가 도달',
-        message: `${currentTime.toLocaleTimeString()} \n${
-          jsonData.code.split('-')[1]
-        }/${
+        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${
           jsonData.code.split('-')[0]
         } : ${jsonData.trade_price.toLocaleString(navigator.language, {
           maximumFractionDigits: 2,
         })}원 `,
+        message: `${currentTime.toLocaleTimeString()}`,
         iconUrl: '/barak_icon_128px.png',
         type: 'basic',
       });
