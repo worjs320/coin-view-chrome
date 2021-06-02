@@ -276,3 +276,6 @@ p.by a {
 #showCoinListBtn:hover {
   transform: scale(1.03);
 }
+.yellow:before {
+  color: #fdc02f;
+}

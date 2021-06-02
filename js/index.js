@@ -70,12 +70,17 @@ function createTable(jsonData) {
     }
   });
 
+  var coinNoticeJson = localStorage.getItem('coinNotice')
+    ? JSON.parse(localStorage.getItem('coinNotice'))
+    : [];
+
   for (var i = 0; i < jsonData.length; i++) {
     tr = table.insertRow(-1);
     tr.id = jsonData[i][className[1]];
     var coinBookmarkInfo =
       JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
     var checked = '';
+    var noticeColor = '';
 
     for (var j = 0; j < col.length; j++) {
       var tabCell = tr.insertCell(-1);
@@ -117,11 +122,20 @@ function createTable(jsonData) {
         tabCell.innerHTML =
           '<p class="signed_change_rate"></p><span class="signed_change_price"></span>';
       }
-      if (j == col.length - 1)
+      if (j == col.length - 1) {
+        for (var key in coinNoticeJson) {
+          if (coinNoticeJson[key].market == jsonData[i][className[1]]) {
+            noticeColor = 'yellow';
+            break;
+          }
+        }
         tabCell.innerHTML =
-          '<i class="far fa-bell" data="' +
+          '<i class="far fa-bell ' +
+          noticeColor +
+          '" data="' +
           jsonData[i][className[1]] +
           '"></i>';
+      }
       tabCell.className = className[j];
     }
   }
@@ -289,6 +303,27 @@ function onMessage(evt) {
     jsonData.acc_trade_price_24h
   );
   document.getElementById(jsonData.code).className = jsonData.change;
+
+  var coinNoticeJson = localStorage.getItem('coinNotice')
+    ? JSON.parse(localStorage.getItem('coinNotice'))
+    : [];
+
+  for (var key in coinNoticeJson) {
+    if (coinNoticeJson[key].market == jsonData.code) {
+      document
+        .getElementById(jsonData.code)
+        .getElementsByClassName('notice')[0]
+        .getElementsByTagName('i')[0]
+        .classList.add('yellow');
+      break;
+    } else {
+      document
+        .getElementById(jsonData.code)
+        .getElementsByClassName('notice')[0]
+        .getElementsByTagName('i')[0]
+        .classList.remove('yellow');
+    }
+  }
 }
 
 function getPlusMinusNumber(theNumber) {
@@ -518,7 +553,7 @@ function customAddEventListener() {
     link.addEventListener('click', openUpbitPage);
   }
 
-  var noticeBtns = document.querySelectorAll('i[class="far fa-bell"]');
+  var noticeBtns = document.querySelectorAll('.notice i');
 
   for (var noticeBtn of noticeBtns) {
     noticeBtn.addEventListener('click', function () {
@@ -572,6 +607,22 @@ function customAddEventListener() {
           ).toLocaleString()}KRW</h3>`,
           2
         );
+        document
+          .getElementById(coinId)
+          .getElementsByClassName('notice')[0]
+          .getElementsByTagName('i')[0]
+          .classList.add('yellow');
+        coinPrice = document
+          .getElementById(coinId)
+          .getElementsByClassName('trade_price')[0]
+          .textContent.replace(/,/g, '');
+        if (value == coinPrice) {
+          document
+            .getElementById(coinId)
+            .getElementsByClassName('notice')[0]
+            .getElementsByTagName('i')[0]
+            .classList.remove('yellow');
+        }
         chrome.runtime.sendMessage('');
       },
       function () {}
