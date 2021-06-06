@@ -254,8 +254,7 @@ function onClose() {
 
 function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
-  var arr = new Uint8Array(evt.data);
-  var jsonData = JSON.parse(enc.decode(arr));
+  var jsonData = JSON.parse(enc.decode(evt.data));
 
   var privPrice = document
     .getElementById(jsonData.code)
@@ -309,14 +308,21 @@ function onMessage(evt) {
     : [];
 
   for (var key in coinNoticeJson) {
-    if (coinNoticeJson[key].market == jsonData.code) {
+    if (
+      coinNoticeJson[key]?.market == jsonData.code &&
+      coinNoticeJson[key]?.notice != jsonData.trade_price
+    ) {
       document
         .getElementById(jsonData.code)
         .getElementsByClassName('notice')[0]
         .getElementsByTagName('i')[0]
         .classList.add('yellow');
       break;
-    } else {
+    } else if (
+      coinNoticeJson[key]?.market != jsonData.code ||
+      (coinNoticeJson[key]?.market == jsonData.code &&
+        coinNoticeJson[key]?.notice != jsonData.trade_price)
+    ) {
       document
         .getElementById(jsonData.code)
         .getElementsByClassName('notice')[0]

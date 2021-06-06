@@ -51,17 +51,14 @@ function onOpen() {
 
 function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
-  var arr = new Uint8Array(evt.data);
-  var jsonData = JSON.parse(enc.decode(arr));
+  var jsonData = JSON.parse(enc.decode(evt.data));
   var coinNoticeJson = localStorage.getItem('coinNotice')
     ? JSON.parse(localStorage.getItem('coinNotice'))
     : [];
   for (var key in coinNoticeJson) {
     if (
       coinNoticeJson[key].market == jsonData.code &&
-      coinNoticeJson[key]?.notice
-        ?.split(',')
-        ?.includes(String(jsonData.trade_price))
+      coinNoticeJson[key]?.notice == jsonData.trade_price
     ) {
       var currentTime = new Date();
       chrome.notifications.create('', {
