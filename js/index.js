@@ -586,16 +586,36 @@ function customAddEventListener() {
     }
     var contentString;
     if (coinNoticePrice != undefined) {
-      contentString = `※호가 단위에 맞게 가격을 설정해 주세요.<h4 style="margin:3px 0px">
-      현재 설정된 알림 : ${Number(coinNoticePrice).toLocaleString()}KRW</h4>`;
+      contentString = `※호가 단위에 맞게 가격을 설정해 주세요.
+      <div id="current-notice-info">
+      <h4 style="margin:5px 0px">현재 설정된 알림 : ${Number(
+        coinNoticePrice
+      ).toLocaleString()}KRW</h4><button class="remove-notice" id="${coinId}">알림 해제</button></div>`;
     } else {
       contentString = `※ 호가 단위에 맞게 가격을 설정해 주세요.`;
     }
+    alertify.defaults.glossary.ok = '설정';
+    alertify.defaults.glossary.cancel = '취소';
     alertify.prompt(
       coinName,
       contentString,
       coinPrice,
       function (evt, value) {
+        if (isNaN(value)) {
+          alertify.set('notifier', 'position', 'top-center');
+          alertify.error('숫자만 입력 가능합니다.', 2);
+          evt.cancel = true;
+          return;
+        }
+        if (value >= 1000000000) {
+          alertify.set('notifier', 'position', 'top-center');
+          alertify.error(
+            '알림 가격이 비정상적입니다. 10억 이하로 설정해 주세요.',
+            2
+          );
+          evt.cancel = true;
+          return;
+        }
         var coinNoticeJson =
           JSON.parse(localStorage.getItem('coinNotice')) || [];
         for (var key in coinNoticeJson) {
@@ -606,7 +626,6 @@ function customAddEventListener() {
         coinNoticeJson.push({ market: coinId, notice: value });
         localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
         alertify.set('notifier', 'position', 'top-center');
-        alertify.set('notifier', 'delay', 100);
         alertify.message(
           `<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${Number(
             value
@@ -633,6 +652,27 @@ function customAddEventListener() {
       },
       function () {}
     );
+    document
+      ?.getElementsByClassName('remove-notice')[0]
+      ?.addEventListener('click', function () {
+        removeNotice(this);
+      });
+  }
+
+  function removeNotice(el) {
+    document?.getElementById('current-notice-info')?.remove();
+    var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
+    for (var key in coinNoticeJson) {
+      if (coinNoticeJson[key].market == el.id) {
+        coinNoticeJson.splice(key, 1);
+      }
+    }
+    document
+      .getElementById(el.id)
+      .getElementsByClassName('notice')[0]
+      .getElementsByTagName('i')[0]
+      .classList.remove('yellow');
+    localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
   }
 
   var bookmarkStatus =
