@@ -57,7 +57,7 @@ function onMessage(evt) {
     : [];
   for (var key in coinNoticeJson) {
     if (
-      coinNoticeJson[key].market == jsonData.code &&
+      coinNoticeJson[key]?.market == jsonData.code &&
       coinNoticeJson[key]?.notice == jsonData.trade_price
     ) {
       var currentTime = new Date();
