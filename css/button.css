@@ -279,3 +279,12 @@ p.by a {
 .yellow:before {
   color: #fdc02f;
 }
+.remove-notice {
+  border-radius: 5px;
+  font-size: 12px;
+  border: 1px solid gray;
+  cursor: pointer;
+}
+.remove-notice:hover {
+  background-color: #e0e0e0;
+}

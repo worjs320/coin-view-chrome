@@ -588,7 +588,7 @@ function customAddEventListener() {
     if (coinNoticePrice != undefined) {
       contentString = `※호가 단위에 맞게 가격을 설정해 주세요.
       <div id="current-notice-info">
-      <h4 style="margin:5px 0px">현재 설정된 알림 : ${Number(
+      <h4 style="margin:4px 0px">현재 설정된 알림 : ${Number(
         coinNoticePrice
       ).toLocaleString()}KRW</h4><button class="remove-notice" id="${coinId}">알림 해제</button></div>`;
     } else {
