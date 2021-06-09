@@ -309,8 +309,8 @@ function onMessage(evt) {
 
   for (var key in coinNoticeJson) {
     if (
-      coinNoticeJson[key]?.market == jsonData.code &&
-      coinNoticeJson[key]?.notice != jsonData.trade_price
+      coinNoticeJson[key].market == jsonData.code &&
+      coinNoticeJson[key].notice != jsonData.trade_price
     ) {
       document
         .getElementById(jsonData.code)
@@ -319,9 +319,9 @@ function onMessage(evt) {
         .classList.add('yellow');
       break;
     } else if (
-      coinNoticeJson[key]?.market != jsonData.code ||
-      (coinNoticeJson[key]?.market == jsonData.code &&
-        coinNoticeJson[key]?.notice != jsonData.trade_price)
+      coinNoticeJson[key].market != jsonData.code ||
+      (coinNoticeJson[key].market == jsonData.code &&
+        coinNoticeJson[key].notice == jsonData.trade_price)
     ) {
       document
         .getElementById(jsonData.code)
@@ -329,6 +329,14 @@ function onMessage(evt) {
         .getElementsByTagName('i')[0]
         .classList.remove('yellow');
     }
+  }
+
+  if (coinNoticeJson.length == 0) {
+    document
+      .getElementById(jsonData.code)
+      .getElementsByClassName('notice')[0]
+      .getElementsByTagName('i')[0]
+      .classList.remove('yellow');
   }
 }
 
