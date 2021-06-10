@@ -660,15 +660,19 @@ function customAddEventListener() {
       },
       function () {}
     );
-    document
-      ?.getElementsByClassName('remove-notice')[0]
-      ?.addEventListener('click', function () {
-        removeNotice(this);
-      });
+    if (document.getElementsByClassName('remove-notice')[0] != undefined) {
+      document
+        .getElementsByClassName('remove-notice')[0]
+        .addEventListener('click', function () {
+          removeNotice(this);
+        });
+    }
   }
 
   function removeNotice(el) {
-    document?.getElementById('current-notice-info')?.remove();
+    if (document.getElementById('current-notice-info') != undefined) {
+      document.getElementById('current-notice-info').remove();
+    }
     var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
     for (var key in coinNoticeJson) {
       if (coinNoticeJson[key].market == el.id) {
