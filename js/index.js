@@ -112,7 +112,9 @@ function createTable(jsonData) {
           '<strong class="' +
           jsonData[i].market +
           '">' +
-          '</strong><span>' +
+          '</strong><i class="warning" style="display:none">유의</i><span>' +
+          // '</strong><i class="warning fas fa-exclamation-triangle" style="display:none"></i><span>' +
+          // '</strong><i class="warning fas fa-exclamation-circle" style="display:none"></i><span>' +
           jsonData[i].market.split('-')[1] +
           '/' +
           jsonData[i].market.split('-')[0] +
@@ -337,6 +339,16 @@ function onMessage(evt) {
       .getElementsByClassName('notice')[0]
       .getElementsByTagName('i')[0]
       .classList.remove('yellow');
+  }
+
+  if (jsonData.market_warning == 'CAUTION') {
+    document
+      .getElementById(jsonData.code)
+      .getElementsByClassName('warning')[0].style.display = 'inline-block';
+  } else {
+    document
+      .getElementById(jsonData.code)
+      .getElementsByClassName('warning')[0].style.display = 'none';
   }
 }
 

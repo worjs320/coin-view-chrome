@@ -288,3 +288,13 @@ p.by a {
 .remove-notice:hover {
   background-color: #e0e0e0;
 }
+.warning {
+  background: #e97415;
+  color: white;
+  font-style: normal;
+  border-radius: 2px;
+  font-size: 10px;
+  padding: 0 2px 0 1px;
+  line-height: 14px;
+  user-select: none;
+}
