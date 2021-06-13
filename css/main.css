@@ -110,11 +110,10 @@ input::placeholder {
 
 .market strong {
   word-break: break-all;
-  margin: 2px 0 3px;
   line-height: 1em;
   font-weight: 700;
   cursor: pointer;
-  padding-right: 2px;
+  margin-right: 4px;
 }
 
 .market span {

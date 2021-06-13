@@ -289,12 +289,12 @@ p.by a {
   background-color: #e0e0e0;
 }
 .warning {
-  background: #e97415;
+  background: #e87417;
   color: white;
   font-style: normal;
   border-radius: 2px;
   font-size: 10px;
   padding: 0 2px 0 1px;
-  line-height: 14px;
+  line-height: 13px;
   user-select: none;
 }
