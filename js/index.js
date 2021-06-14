@@ -113,8 +113,6 @@ function createTable(jsonData) {
           jsonData[i].market +
           '">' +
           '</strong><i class="warning" style="display:none">유의</i><span>' +
-          // '</strong><i class="warning fas fa-exclamation-triangle" style="display:none"></i><span>' +
-          // '</strong><i class="warning fas fa-exclamation-circle" style="display:none"></i><span>' +
           jsonData[i].market.split('-')[1] +
           '/' +
           jsonData[i].market.split('-')[0] +
@@ -621,9 +619,9 @@ function customAddEventListener() {
       contentString,
       coinPrice,
       function (evt, value) {
-        if (isNaN(value)) {
+        if (isNaN(value) || value <= 0) {
           alertify.set('notifier', 'position', 'top-center');
-          alertify.error('숫자만 입력 가능합니다.', 2);
+          alertify.error('알림 가격이 비정상적입니다.', 2);
           evt.cancel = true;
           return;
         }
