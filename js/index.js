@@ -34,7 +34,7 @@ function createTable(jsonData) {
         th.innerHTML = col[i];
       }
     }
-    if (i >= 3 && i < col.length - 1) th.style = 'text-align:right';
+    if (i == 3 || i == 4) th.style = 'text-align:right';
     thead.appendChild(th);
   }
   function getSortIndexBySortItem(sortItem) {
@@ -488,8 +488,7 @@ function onCheckBookmark() {
 
 function onCheckBookmarkSearch(el) {
   document.getElementById('searchCoinInput').value = '';
-  var input, table, tr, checked, i;
-  input = document.getElementById('searchCoinInput');
+  var table, tr, checked, i;
   table = document.getElementById('coinList');
   tr = table.getElementsByTagName('tr');
   var noneBookmark = true;
