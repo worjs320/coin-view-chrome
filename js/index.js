@@ -13,12 +13,8 @@ function createTable(jsonData) {
     '<colgroup><col width="25px"><col width="22%"/><col width="55px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
 
   var thead = tableHeader.createTHead(); // TABLE ROW.
-  var sort = localStorage.getItem('sort')
-    ? localStorage.getItem('sort')
-    : 'down';
-  var sortItem = localStorage.getItem('sortItem')
-    ? localStorage.getItem('sortItem')
-    : 'acc_trade_price_24h';
+  var sort = localStorage.getItem('sort') ? localStorage.getItem('sort') : 'down';
+  var sortItem = localStorage.getItem('sortItem') ? localStorage.getItem('sortItem') : 'acc_trade_price_24h';
 
   for (var i = 1; i < col.length; i++) {
     var th = document.createElement('th'); // TABLE HEADER.
@@ -49,14 +45,7 @@ function createTable(jsonData) {
         return 0;
     }
   }
-  var className = [
-    'bookmark',
-    'market',
-    'trade_price',
-    'percent',
-    'acc_trade_price_24h',
-    'notice',
-  ];
+  var className = ['bookmark', 'market', 'trade_price', 'percent', 'acc_trade_price_24h', 'notice'];
 
   var table = document.createElement('table');
   table.innerHTML =
@@ -70,15 +59,12 @@ function createTable(jsonData) {
     }
   });
 
-  var coinNoticeJson = localStorage.getItem('coinNotice')
-    ? JSON.parse(localStorage.getItem('coinNotice'))
-    : [];
+  var coinNoticeJson = localStorage.getItem('coinNotice') ? JSON.parse(localStorage.getItem('coinNotice')) : [];
 
   for (var i = 0; i < jsonData.length; i++) {
     tr = table.insertRow(-1);
     tr.id = jsonData[i][className[1]];
-    var coinBookmarkInfo =
-      JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
+    var coinBookmarkInfo = JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
     var checked = '';
     var noticeColor = '';
 
@@ -86,10 +72,7 @@ function createTable(jsonData) {
       var tabCell = tr.insertCell(-1);
       if (j == 0) {
         for (var key in coinBookmarkInfo) {
-          if (
-            coinBookmarkInfo[key].market ==
-            jsonData[i][className[1]] + '_bookmark'
-          ) {
+          if (coinBookmarkInfo[key].market == jsonData[i][className[1]] + '_bookmark') {
             checked = 'checked';
             break;
           } else {
@@ -119,8 +102,7 @@ function createTable(jsonData) {
           '</span>';
       }
       if (j == 3) {
-        tabCell.innerHTML =
-          '<p class="signed_change_rate"></p><span class="signed_change_price"></span>';
+        tabCell.innerHTML = '<p class="signed_change_rate"></p><span class="signed_change_price"></span>';
       }
       if (j == col.length - 1) {
         for (var key in coinNoticeJson) {
@@ -129,12 +111,7 @@ function createTable(jsonData) {
             break;
           }
         }
-        tabCell.innerHTML =
-          '<i class="far fa-bell ' +
-          noticeColor +
-          '" data="' +
-          jsonData[i][className[1]] +
-          '"></i>';
+        tabCell.innerHTML = '<i class="far fa-bell ' + noticeColor + '" data="' + jsonData[i][className[1]] + '"></i>';
       }
       tabCell.className = className[j];
     }
@@ -145,10 +122,7 @@ function createTable(jsonData) {
 }
 
 function openUpbitPage() {
-  var win = window.open(
-    'https://upbit.com/exchange?code=CRIX.UPBIT.' + this.className,
-    '_blank'
-  );
+  var win = window.open('https://upbit.com/exchange?code=CRIX.UPBIT.' + this.className, '_blank');
   win.focus();
 }
 
@@ -183,10 +157,7 @@ function getMarketName() {
   }
 
   for (var i = 0; i < globalData.length; i++) {
-    document
-      .getElementById(globalData[i].market)
-      .getElementsByClassName(globalData[i].market)[0].innerHTML =
-      globalData[i][lang];
+    document.getElementById(globalData[i].market).getElementsByClassName(globalData[i].market)[0].innerHTML = globalData[i][lang];
   }
 }
 
@@ -201,10 +172,7 @@ function setMarketName() {
   }
 
   for (var i = 0; i < globalData.length; i++) {
-    document
-      .getElementById(globalData[i].market)
-      .getElementsByClassName(globalData[i].market)[0].innerHTML =
-      globalData[i][lang];
+    document.getElementById(globalData[i].market).getElementsByClassName(globalData[i].market)[0].innerHTML = globalData[i][lang];
   }
 }
 
@@ -256,97 +224,50 @@ function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var jsonData = JSON.parse(enc.decode(evt.data));
 
-  var privPrice = document
-    .getElementById(jsonData.code)
-    .getElementsByClassName('trade_price')[0].textContent;
+  var privPrice = document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].textContent;
 
-  document
-    .getElementById(jsonData.code)
-    .getElementsByClassName('trade_price')[0].innerHTML =
-    jsonData.trade_price.toLocaleString();
-  document
-    .getElementById(jsonData.code)
-    .getElementsByClassName('signed_change_rate')[0].innerHTML =
-    getPercentNumber(jsonData.signed_change_rate);
+  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].innerHTML = jsonData.trade_price.toLocaleString();
+  document.getElementById(jsonData.code).getElementsByClassName('signed_change_rate')[0].innerHTML = getPercentNumber(jsonData.signed_change_rate);
 
   var currentPrice = jsonData.trade_price.toLocaleString();
   if (privPrice != currentPrice && privPrice != '') {
     if (privPrice < currentPrice) {
-      document
-        .getElementById(jsonData.code)
-        .getElementsByClassName('trade_price')[0]
-        .classList.remove('price-down');
-      document
-        .getElementById(jsonData.code)
-        .getElementsByClassName('trade_price')[0]
-        .classList.add('price-up');
+      document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].classList.remove('price-down');
+      document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].classList.add('price-up');
     } else if (privPrice > currentPrice) {
-      document
-        .getElementById(jsonData.code)
-        .getElementsByClassName('trade_price')[0]
-        .classList.remove('price-up');
-      document
-        .getElementById(jsonData.code)
-        .getElementsByClassName('trade_price')[0]
-        .classList.add('price-down');
+      document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].classList.remove('price-up');
+      document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].classList.add('price-down');
     }
   }
-  document
-    .getElementById(jsonData.code)
-    .getElementsByClassName('signed_change_price')[0].innerHTML =
-    getPlusMinusNumber(jsonData.signed_change_price);
-
-  document
-    .getElementById(jsonData.code)
-    .getElementsByClassName('acc_trade_price_24h')[0].innerHTML = getNumberUnit(
-    jsonData.acc_trade_price_24h
+  document.getElementById(jsonData.code).getElementsByClassName('signed_change_price')[0].innerHTML = getPlusMinusNumber(
+    jsonData.signed_change_price
   );
+
+  document.getElementById(jsonData.code).getElementsByClassName('acc_trade_price_24h')[0].innerHTML = getNumberUnit(jsonData.acc_trade_price_24h);
   document.getElementById(jsonData.code).className = jsonData.change;
 
-  var coinNoticeJson = localStorage.getItem('coinNotice')
-    ? JSON.parse(localStorage.getItem('coinNotice'))
-    : [];
+  var coinNoticeJson = localStorage.getItem('coinNotice') ? JSON.parse(localStorage.getItem('coinNotice')) : [];
 
   for (var key in coinNoticeJson) {
-    if (
-      coinNoticeJson[key].market == jsonData.code &&
-      coinNoticeJson[key].notice != jsonData.trade_price
-    ) {
-      document
-        .getElementById(jsonData.code)
-        .getElementsByClassName('notice')[0]
-        .getElementsByTagName('i')[0]
-        .classList.add('yellow');
+    if (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice != jsonData.trade_price) {
+      document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
       break;
     } else if (
       coinNoticeJson[key].market != jsonData.code ||
-      (coinNoticeJson[key].market == jsonData.code &&
-        coinNoticeJson[key].notice == jsonData.trade_price)
+      (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice == jsonData.trade_price)
     ) {
-      document
-        .getElementById(jsonData.code)
-        .getElementsByClassName('notice')[0]
-        .getElementsByTagName('i')[0]
-        .classList.remove('yellow');
+      document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
     }
   }
 
   if (coinNoticeJson.length == 0) {
-    document
-      .getElementById(jsonData.code)
-      .getElementsByClassName('notice')[0]
-      .getElementsByTagName('i')[0]
-      .classList.remove('yellow');
+    document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
   }
 
   if (jsonData.market_warning == 'CAUTION') {
-    document
-      .getElementById(jsonData.code)
-      .getElementsByClassName('warning')[0].style.display = 'inline-block';
+    document.getElementById(jsonData.code).getElementsByClassName('warning')[0].style.display = 'inline-block';
   } else {
-    document
-      .getElementById(jsonData.code)
-      .getElementsByClassName('warning')[0].style.display = 'none';
+    document.getElementById(jsonData.code).getElementsByClassName('warning')[0].style.display = 'none';
   }
 }
 
@@ -369,8 +290,7 @@ function getNumberUnit(theNumber) {
   var result = theNumber.toLocaleString('ko-KR', {
     maximumFractionDigits: 0,
   });
-  if (result.length >= 8)
-    result = result.substring(0, result.length - 8) + '백만';
+  if (result.length >= 8) result = result.substring(0, result.length - 8) + '백만';
   return result;
 }
 
@@ -398,17 +318,11 @@ function searchCoin() {
   for (var i = 0; i < tr.length; i++) {
     for (var j = 1; j < 2; j++) {
       td = tr[i].getElementsByTagName('td')[1];
-      bookmark = tr[i]
-        .getElementsByTagName('td')[0]
-        .getElementsByTagName('div')[0]
-        .getElementsByTagName('input')[0].checked;
+      bookmark = tr[i].getElementsByTagName('td')[0].getElementsByTagName('div')[0].getElementsByTagName('input')[0].checked;
       if (td) {
         txtValue = td.textContent || td.innerText;
         txtChoValue = cho_hangul(td.textContent) || cho_hangul(td.innerText);
-        if (
-          txtValue.toUpperCase().indexOf(filter) > -1 ||
-          (txtChoValue.toUpperCase().indexOf(choFilter) == 0 && isCho(filter))
-        ) {
+        if (txtValue.toUpperCase().indexOf(filter) > -1 || (txtChoValue.toUpperCase().indexOf(choFilter) == 0 && isCho(filter))) {
           if (searchBookmarkFlag && bookmark) {
             tr[i].style.display = '';
             break;
@@ -430,27 +344,7 @@ function isCho(str) {
 }
 
 function cho_hangul(str) {
-  cho = [
-    'ㄱ',
-    'ㄲ',
-    'ㄴ',
-    'ㄷ',
-    'ㄸ',
-    'ㄹ',
-    'ㅁ',
-    'ㅂ',
-    'ㅃ',
-    'ㅅ',
-    'ㅆ',
-    'ㅇ',
-    'ㅈ',
-    'ㅉ',
-    'ㅊ',
-    'ㅋ',
-    'ㅌ',
-    'ㅍ',
-    'ㅎ',
-  ];
+  cho = ['ㄱ', 'ㄲ', 'ㄴ', 'ㄷ', 'ㄸ', 'ㄹ', 'ㅁ', 'ㅂ', 'ㅃ', 'ㅅ', 'ㅆ', 'ㅇ', 'ㅈ', 'ㅉ', 'ㅊ', 'ㅋ', 'ㅌ', 'ㅍ', 'ㅎ'];
   result = '';
   for (i = 0; i < str.length; i++) {
     code = str.charCodeAt(i) - 44032;
@@ -464,13 +358,11 @@ function onCheckBookmark() {
   stopColorEvent();
   var el = this;
   if (el.checked == true) {
-    var coinBookmarkInfo =
-      JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
+    var coinBookmarkInfo = JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
     coinBookmarkInfo.push({ market: el.id });
     localStorage.setItem('coinBookmarkInfo', JSON.stringify(coinBookmarkInfo));
   } else {
-    var coinBookmarkInfo =
-      JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
+    var coinBookmarkInfo = JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
     for (var key in coinBookmarkInfo) {
       if (coinBookmarkInfo[key].market == el.id) {
         coinBookmarkInfo.splice(key, 1);
@@ -479,8 +371,7 @@ function onCheckBookmark() {
     localStorage.setItem('coinBookmarkInfo', JSON.stringify(coinBookmarkInfo));
     if (document.getElementById('searchBookmark').checked == true) {
       document.getElementById(el.id.split('_')[0]).style.display = 'none';
-      var onCheckCoinBookmarkInfo =
-        JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
+      var onCheckCoinBookmarkInfo = JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
       if (onCheckCoinBookmarkInfo.length == 0) createNoneBookmarkTextCell();
     }
   }
@@ -494,10 +385,7 @@ function onCheckBookmarkSearch(el) {
   var noneBookmark = true;
   if (el.checked == true) {
     for (i = 0; i < tr.length; i++) {
-      checked = tr[i]
-        .getElementsByTagName('td')[0]
-        .getElementsByTagName('div')[0]
-        .getElementsByTagName('input')[0].checked;
+      checked = tr[i].getElementsByTagName('td')[0].getElementsByTagName('div')[0].getElementsByTagName('input')[0].checked;
       if (checked == true) {
         tr[i].style.display = '';
         noneBookmark = false;
@@ -525,46 +413,27 @@ function createNoneBookmarkTextCell() {
   row.id = 'noBookmark';
   cell.colSpan = 6;
   cell.style = 'text-align:center; padding: 30px 0;';
-  cell.innerHTML =
-    '즐겨찾기한 코인이 없습니다.<br/><a id="showCoinListBtn">코인 목록</a>';
-  document
-    .getElementById('showCoinListBtn')
-    .addEventListener('click', function () {
-      onCheckBookmarkSearch({ checked: false });
-      document.getElementById('searchBookmark').checked = false;
-    });
+  cell.innerHTML = '즐겨찾기한 코인이 없습니다.<br/><a id="showCoinListBtn">코인 목록</a>';
+  document.getElementById('showCoinListBtn').addEventListener('click', function () {
+    onCheckBookmarkSearch({ checked: false });
+    document.getElementById('searchBookmark').checked = false;
+  });
 }
 
 function stopColorEvent() {
-  for (
-    var i = 0;
-    i < document.getElementsByClassName('trade_price').length;
-    i++
-  ) {
-    document
-      .getElementsByClassName('trade_price')
-      [i].classList.remove('price-up');
-    document
-      .getElementsByClassName('trade_price')
-      [i].classList.remove('price-down');
+  for (var i = 0; i < document.getElementsByClassName('trade_price').length; i++) {
+    document.getElementsByClassName('trade_price')[i].classList.remove('price-up');
+    document.getElementsByClassName('trade_price')[i].classList.remove('price-down');
   }
 }
 
 function customAddEventListener() {
-  document
-    .getElementById('searchBookmark')
-    .addEventListener('click', function () {
-      onCheckBookmarkSearch(this);
-    });
-  document
-    .getElementById('searchCoinInput')
-    .addEventListener('keyup', searchCoin);
-  document
-    .getElementById('searchCoinInput')
-    .addEventListener('search', searchCoin);
-  var checkboxes = document.querySelectorAll(
-    'input[type=checkbox][class=bookmark]'
-  );
+  document.getElementById('searchBookmark').addEventListener('click', function () {
+    onCheckBookmarkSearch(this);
+  });
+  document.getElementById('searchCoinInput').addEventListener('keyup', searchCoin);
+  document.getElementById('searchCoinInput').addEventListener('search', searchCoin);
+  var checkboxes = document.querySelectorAll('input[type=checkbox][class=bookmark]');
 
   for (var checkbox of checkboxes) {
     checkbox.addEventListener('change', onCheckBookmark);
@@ -586,14 +455,8 @@ function customAddEventListener() {
 
   function openNoticeModal(el) {
     var coinId = el.getAttribute('data');
-    var coinName = document
-      .getElementById(coinId)
-      .getElementsByClassName('market')[0]
-      .getElementsByClassName(coinId)[0].textContent;
-    var coinPrice = document
-      .getElementById(coinId)
-      .getElementsByClassName('trade_price')[0]
-      .textContent.replace(/,/g, '');
+    var coinName = document.getElementById(coinId).getElementsByClassName('market')[0].getElementsByClassName(coinId)[0].textContent;
+    var coinPrice = document.getElementById(coinId).getElementsByClassName('trade_price')[0].textContent.replace(/,/g, '');
     var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
     var coinNoticePrice;
     for (var key in coinNoticeJson) {
@@ -626,15 +489,11 @@ function customAddEventListener() {
         }
         if (value >= 1000000000) {
           alertify.set('notifier', 'position', 'top-center');
-          alertify.error(
-            '알림 가격이 비정상적입니다. 10억 이하로 설정해 주세요.',
-            2
-          );
+          alertify.error('알림 가격이 비정상적입니다. 10억 이하로 설정해 주세요.', 2);
           evt.cancel = true;
           return;
         }
-        var coinNoticeJson =
-          JSON.parse(localStorage.getItem('coinNotice')) || [];
+        var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
         for (var key in coinNoticeJson) {
           if (coinNoticeJson[key].market == coinId) {
             coinNoticeJson.splice(key, 1);
@@ -643,38 +502,19 @@ function customAddEventListener() {
         coinNoticeJson.push({ market: coinId, notice: value });
         localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
         alertify.set('notifier', 'position', 'top-center');
-        alertify.message(
-          `<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${Number(
-            value
-          ).toLocaleString()}KRW</h3>`,
-          2
-        );
-        document
-          .getElementById(coinId)
-          .getElementsByClassName('notice')[0]
-          .getElementsByTagName('i')[0]
-          .classList.add('yellow');
-        coinPrice = document
-          .getElementById(coinId)
-          .getElementsByClassName('trade_price')[0]
-          .textContent.replace(/,/g, '');
+        alertify.message(`<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${Number(value).toLocaleString()}KRW</h3>`, 2);
+        document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
         if (value == coinPrice) {
-          document
-            .getElementById(coinId)
-            .getElementsByClassName('notice')[0]
-            .getElementsByTagName('i')[0]
-            .classList.remove('yellow');
+          document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
         }
         chrome.runtime.sendMessage('');
       },
       function () {}
     );
     if (document.getElementsByClassName('remove-notice')[0] != undefined) {
-      document
-        .getElementsByClassName('remove-notice')[0]
-        .addEventListener('click', function () {
-          removeNotice(this);
-        });
+      document.getElementsByClassName('remove-notice')[0].addEventListener('click', function () {
+        removeNotice(this);
+      });
     }
   }
 
@@ -688,16 +528,11 @@ function customAddEventListener() {
         coinNoticeJson.splice(key, 1);
       }
     }
-    document
-      .getElementById(el.id)
-      .getElementsByClassName('notice')[0]
-      .getElementsByTagName('i')[0]
-      .classList.remove('yellow');
+    document.getElementById(el.id).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
     localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
   }
 
-  var bookmarkStatus =
-    JSON.parse(localStorage.getItem('bookmarkStatus')) || false;
+  var bookmarkStatus = JSON.parse(localStorage.getItem('bookmarkStatus')) || false;
   if (bookmarkStatus) {
     document.getElementById('searchBookmark').checked = true;
     var eventFocus = new Event('click');
@@ -717,32 +552,21 @@ function customAddEventListener() {
 
   function setSort(thisObj, index) {
     for (var i = 0; i < document.getElementsByTagName('th').length - 1; i++) {
-      if (i != index - 1 && i != 0)
-        document
-          .getElementsByTagName('th')
-          [i].getElementsByTagName('i')[0].className = 'fas fa-sort';
+      if (i != index - 1 && i != 0) document.getElementsByTagName('th')[i].getElementsByTagName('i')[0].className = 'fas fa-sort';
     }
     if (thisObj.getElementsByTagName('i')[0].classList.contains('fa-sort-up')) {
       reverseTD(index);
-      thisObj
-        .getElementsByTagName('i')[0]
-        .classList.replace('fa-sort-up', 'fa-sort-down');
+      thisObj.getElementsByTagName('i')[0].classList.replace('fa-sort-up', 'fa-sort-down');
       localStorage.setItem('sort', 'down');
       localStorage.setItem('sortItem', getSortItemByIndex(index));
-    } else if (
-      thisObj.getElementsByTagName('i')[0].classList.contains('fa-sort-down')
-    ) {
+    } else if (thisObj.getElementsByTagName('i')[0].classList.contains('fa-sort-down')) {
       sortTD(index);
-      thisObj
-        .getElementsByTagName('i')[0]
-        .classList.replace('fa-sort-down', 'fa-sort-up');
+      thisObj.getElementsByTagName('i')[0].classList.replace('fa-sort-down', 'fa-sort-up');
       localStorage.setItem('sort', 'up');
       localStorage.setItem('sortItem', getSortItemByIndex(index));
     } else {
       reverseTD(index);
-      thisObj
-        .getElementsByTagName('i')[0]
-        .classList.replace('fa-sort', 'fa-sort-down');
+      thisObj.getElementsByTagName('i')[0].classList.replace('fa-sort', 'fa-sort-down');
       localStorage.setItem('sort', 'down');
       localStorage.setItem('sortItem', getSortItemByIndex(index));
     }
@@ -791,9 +615,7 @@ function colorModePreview(ele) {
 
 window.onload = function () {
   var isUserColorTheme = localStorage.getItem('color-theme');
-  var isOsColorTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light';
+  var isOsColorTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 
   var getUserTheme = isUserColorTheme ? isUserColorTheme : isOsColorTheme;
 
