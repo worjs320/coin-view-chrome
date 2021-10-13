@@ -1,5 +1,6 @@
 var url = 'https://api.upbit.com/v1/market/all';
 var globalData;
+var locale = 'ko-KR';
 fetch(url)
   .then((response) => response.json())
   .then((data) => init(data));
@@ -225,9 +226,11 @@ function onMessage(evt) {
   var jsonData = JSON.parse(enc.decode(evt.data));
 
   var privPrice = document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].textContent;
-
-  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].innerHTML = jsonData.trade_price.toLocaleString();
-  document.getElementById(jsonData.code).getElementsByClassName('signed_change_rate')[0].innerHTML = getPercentNumber(jsonData.signed_change_rate);
+  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].innerHTML = getTradePriceNumber(jsonData.trade_price);
+  document.getElementById(jsonData.code).getElementsByClassName('signed_change_rate')[0].innerHTML = jsonData.signed_change_rate.toLocaleString(
+    locale,
+    { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }
+  );
 
   var currentPrice = jsonData.trade_price.toLocaleString();
   if (privPrice != currentPrice && privPrice != '') {
@@ -273,16 +276,9 @@ function onMessage(evt) {
 
 function getPlusMinusNumber(theNumber) {
   if (theNumber > 0) {
-    return (
-      '+' +
-      theNumber.toLocaleString(navigator.language, {
-        maximumFractionDigits: 2,
-      })
-    );
+    return '+' + theNumber.toLocaleString(locale, { maximumFractionDigits: 20 });
   } else {
-    return theNumber.toLocaleString(navigator.language, {
-      maximumFractionDigits: 2,
-    });
+    return theNumber.toLocaleString(locale, { maximumFractionDigits: 20 });
   }
 }
 
@@ -294,12 +290,18 @@ function getNumberUnit(theNumber) {
   return result;
 }
 
-function getPercentNumber(theNumber) {
-  if (theNumber > 0) {
-    return '+' + (theNumber * 100).toFixed(2) + '%';
+function getTradePriceNumber(theNumber) {
+  var minCount = 0;
+  if (theNumber >= 10) {
+  } else if (theNumber < 10) {
+    minCount = 2;
   } else {
-    return (theNumber * 100).toFixed(2) + '%';
+    minCount = 4;
   }
+  return theNumber.toLocaleString(navigator.language, {
+    minimumFractionDigits: minCount,
+    maximumFractionDigits: 20,
+  });
 }
 
 function onError() {
