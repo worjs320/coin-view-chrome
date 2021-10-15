@@ -5,10 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Barak</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=block"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=block" rel="stylesheet" />
     <link rel="stylesheet" href="./css/main.css" />
     <link rel="stylesheet" href="./css/button.css" />
     <link rel="stylesheet" href="./css/simple-scrollbar.css" />
@@ -25,6 +22,11 @@
         <input type="checkbox" id="searchBookmark" />
         <label for="searchBookmark"></label>
       </div>
+      <select name="market-mode" style="margin-right: 9px">
+        <option value="KRW-" selected>KRW</option>
+        <option value="BTC-">BTC</option>
+        <option value="USDT">USDT</option>
+      </select>
       <div class="search-area">
         <i class="fas fa-search"></i>
         <input type="search" id="searchCoinInput" placeholder="Search" />
