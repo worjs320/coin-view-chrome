@@ -1,5 +1,7 @@
 var url = 'https://api.upbit.com/v1/market/all';
 var globalData;
+var globalDataAll;
+var websocket;
 var locale = 'ko-KR';
 fetch(url)
   .then((response) => response.json())
@@ -120,6 +122,8 @@ function createTable(jsonData) {
 
   document.getElementById('tableHeader').appendChild(tableHeader);
   document.getElementById('tableBody').appendChild(table);
+
+  return jsonData;
 }
 
 function openUpbitPage() {
@@ -128,9 +132,12 @@ function openUpbitPage() {
 }
 
 function init(jsonData) {
+  globalDataAll = [...jsonData];
   var marketString = '';
+  var marketMode = document.getElementsByName('market-mode')[0].value;
+
   for (i = 0; i < jsonData.length; i++) {
-    if (jsonData[i].market.substr(0, 3) != 'KRW') {
+    if (jsonData[i].market.substr(0, 4) != marketMode) {
       jsonData.splice(i, 1);
       i--;
     }
@@ -146,7 +153,40 @@ function init(jsonData) {
     .then((response) => response.json())
     .then((data) => createTable(data))
     .then(() => getMarketName())
-    .then(() => customAddEventListener())
+    .then(() => addButtonEventListener())
+    .then(() => addTableSortEventListener())
+    .then(() => webSocketConfig());
+}
+
+function changeMarket(jsonData) {
+  globalDataAll = [...jsonData];
+  if (websocket != undefined) websocket.close();
+
+  document.getElementById('tableHeader').innerHTML = '';
+  document.getElementById('tableBody').innerHTML = '';
+
+  var marketString = '';
+  var marketMode = document.getElementsByName('market-mode')[0].value;
+  for (i = 0; i < jsonData.length; i++) {
+    if (jsonData[i].market.substr(0, 4) != marketMode) {
+      jsonData.splice(i, 1);
+      i--;
+    }
+  }
+
+  for (i = 0; i < jsonData.length; i++) {
+    if (jsonData[i].market.substr(0, 4) == marketMode) {
+      marketString += jsonData[i].market;
+      if (i < jsonData.length - 1) marketString += ',';
+    }
+  }
+
+  globalData = jsonData;
+  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString)
+    .then((response) => response.json())
+    .then((data) => createTable(data))
+    .then(() => getMarketName())
+    .then(() => addTableSortEventListener())
     .then(() => webSocketConfig());
 }
 
@@ -186,17 +226,13 @@ function webSocketConfig() {
     onOpen(evt);
   };
 
-  websocket.onclose = function (evt) {
-    onClose(evt);
-  };
+  websocket.onclose = function (evt) {};
 
   websocket.onmessage = function (evt) {
     onMessage(evt);
   };
 
-  websocket.onerror = function (evt) {
-    onError(evt);
-  };
+  websocket.onerror = function (evt) {};
 }
 
 function onOpen(evt) {
@@ -217,10 +253,6 @@ function onOpen(evt) {
   websocket.send(msg);
 }
 
-function onClose() {
-  webSocketConfig();
-}
-
 function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var jsonData = JSON.parse(enc.decode(evt.data));
@@ -232,7 +264,7 @@ function onMessage(evt) {
     { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }
   );
 
-  var currentPrice = jsonData.trade_price.toLocaleString();
+  var currentPrice = getTradePriceNumber(jsonData.trade_price);
   if (privPrice != currentPrice && privPrice != '') {
     if (privPrice < currentPrice) {
       document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].classList.remove('price-down');
@@ -276,9 +308,9 @@ function onMessage(evt) {
 
 function getPlusMinusNumber(theNumber) {
   if (theNumber > 0) {
-    return '+' + theNumber.toLocaleString(locale, { maximumFractionDigits: 20 });
+    return '+' + theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
   } else {
-    return theNumber.toLocaleString(locale, { maximumFractionDigits: 20 });
+    return theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
   }
 }
 
@@ -286,26 +318,28 @@ function getNumberUnit(theNumber) {
   var result = theNumber.toLocaleString('ko-KR', {
     maximumFractionDigits: 0,
   });
-  if (result.length >= 8) result = result.substring(0, result.length - 8) + '백만';
+  if (theNumber >= 1000000000) {
+    result = result.substring(0, result.length - 8) + '백만';
+  }
   return result;
 }
 
 function getTradePriceNumber(theNumber) {
   var minCount = 0;
+  var maxCount = 20;
   if (theNumber >= 10) {
-  } else if (theNumber < 10) {
+    maxCount = 3;
+  } else if (theNumber > 1) {
     minCount = 2;
-  } else {
+  } else if (theNumber > 0.1) {
     minCount = 4;
+  } else {
+    minCount = 8;
   }
-  return theNumber.toLocaleString(navigator.language, {
+  return theNumber.toLocaleString(locale, {
     minimumFractionDigits: minCount,
-    maximumFractionDigits: 20,
+    maximumFractionDigits: maxCount,
   });
-}
-
-function onError() {
-  webSocketConfig();
 }
 
 function searchCoin() {
@@ -429,110 +463,12 @@ function stopColorEvent() {
   }
 }
 
-function customAddEventListener() {
+function addButtonEventListener() {
   document.getElementById('searchBookmark').addEventListener('click', function () {
     onCheckBookmarkSearch(this);
   });
   document.getElementById('searchCoinInput').addEventListener('keyup', searchCoin);
   document.getElementById('searchCoinInput').addEventListener('search', searchCoin);
-  var checkboxes = document.querySelectorAll('input[type=checkbox][class=bookmark]');
-
-  for (var checkbox of checkboxes) {
-    checkbox.addEventListener('change', onCheckBookmark);
-  }
-
-  var links = document.querySelectorAll('strong');
-
-  for (var link of links) {
-    link.addEventListener('click', openUpbitPage);
-  }
-
-  var noticeBtns = document.querySelectorAll('.notice i');
-
-  for (var noticeBtn of noticeBtns) {
-    noticeBtn.addEventListener('click', function () {
-      openNoticeModal(this);
-    });
-  }
-
-  function openNoticeModal(el) {
-    var coinId = el.getAttribute('data');
-    var coinName = document.getElementById(coinId).getElementsByClassName('market')[0].getElementsByClassName(coinId)[0].textContent;
-    var coinPrice = document.getElementById(coinId).getElementsByClassName('trade_price')[0].textContent.replace(/,/g, '');
-    var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
-    var coinNoticePrice;
-    for (var key in coinNoticeJson) {
-      if (coinNoticeJson[key].market == coinId) {
-        coinNoticePrice = coinNoticeJson[key].notice;
-      }
-    }
-    var contentString;
-    if (coinNoticePrice != undefined) {
-      contentString = `※호가 단위에 맞게 가격을 설정해 주세요.
-      <div id="current-notice-info">
-      <h4 style="margin:4px 0px">현재 설정된 알림 : ${Number(
-        coinNoticePrice
-      ).toLocaleString()}KRW</h4><button class="remove-notice" id="${coinId}">알림 해제</button></div>`;
-    } else {
-      contentString = `※ 호가 단위에 맞게 가격을 설정해 주세요.`;
-    }
-    alertify.defaults.glossary.ok = '설정';
-    alertify.defaults.glossary.cancel = '취소';
-    alertify.prompt(
-      coinName,
-      contentString,
-      coinPrice,
-      function (evt, value) {
-        if (isNaN(value) || value <= 0) {
-          alertify.set('notifier', 'position', 'top-center');
-          alertify.error('알림 가격이 비정상적입니다.', 2);
-          evt.cancel = true;
-          return;
-        }
-        if (value >= 1000000000) {
-          alertify.set('notifier', 'position', 'top-center');
-          alertify.error('알림 가격이 비정상적입니다. 10억 이하로 설정해 주세요.', 2);
-          evt.cancel = true;
-          return;
-        }
-        var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
-        for (var key in coinNoticeJson) {
-          if (coinNoticeJson[key].market == coinId) {
-            coinNoticeJson.splice(key, 1);
-          }
-        }
-        coinNoticeJson.push({ market: coinId, notice: value });
-        localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
-        alertify.set('notifier', 'position', 'top-center');
-        alertify.message(`<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${Number(value).toLocaleString()}KRW</h3>`, 2);
-        document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
-        if (value == coinPrice) {
-          document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
-        }
-        chrome.runtime.sendMessage('');
-      },
-      function () {}
-    );
-    if (document.getElementsByClassName('remove-notice')[0] != undefined) {
-      document.getElementsByClassName('remove-notice')[0].addEventListener('click', function () {
-        removeNotice(this);
-      });
-    }
-  }
-
-  function removeNotice(el) {
-    if (document.getElementById('current-notice-info') != undefined) {
-      document.getElementById('current-notice-info').remove();
-    }
-    var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
-    for (var key in coinNoticeJson) {
-      if (coinNoticeJson[key].market == el.id) {
-        coinNoticeJson.splice(key, 1);
-      }
-    }
-    document.getElementById(el.id).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
-    localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
-  }
 
   var bookmarkStatus = JSON.parse(localStorage.getItem('bookmarkStatus')) || false;
   if (bookmarkStatus) {
@@ -541,8 +477,31 @@ function customAddEventListener() {
     document.getElementById('searchBookmark').dispatchEvent(eventFocus);
   }
 
+  document.getElementsByName('market-mode')[0].addEventListener('change', function () {
+    changeMarket(globalDataAll);
+  });
+}
+
+function addTableSortEventListener() {
+  document.getElementsByTagName('th')[0].addEventListener('click', function () {
+    setMarketName();
+  });
+  document.getElementsByTagName('th')[1].addEventListener('click', function () {
+    var thisObj = this;
+    setSort(thisObj, 2);
+  });
+  document.getElementsByTagName('th')[2].addEventListener('click', function () {
+    var thisObj = this;
+    setSort(thisObj, 3);
+  });
+  document.getElementsByTagName('th')[3].addEventListener('click', function () {
+    var thisObj = this;
+    setSort(thisObj, 4);
+  });
+
   var myTable = document.getElementById('coinList');
   var replace = replacement(myTable);
+
   function sortTD(index) {
     stopColorEvent();
     replace.ascending(index);
@@ -574,35 +533,119 @@ function customAddEventListener() {
     }
   }
 
-  function getSortItemByIndex(index) {
-    switch (index) {
-      case 2:
-        return 'trade_price';
-      case 3:
-        return 'signed_change_rate';
-      case 4:
-        return 'acc_trade_price_24h';
-      default:
-        return 'none';
-    }
+  var checkboxes = document.querySelectorAll('input[type=checkbox][class=bookmark]');
+
+  for (var checkbox of checkboxes) {
+    checkbox.addEventListener('change', onCheckBookmark);
   }
 
-  document.getElementsByTagName('th')[0].addEventListener('click', function () {
-    setMarketName();
-  });
-  document.getElementsByTagName('th')[1].addEventListener('click', function () {
-    var thisObj = this;
-    setSort(thisObj, 2);
-  });
-  document.getElementsByTagName('th')[2].addEventListener('click', function () {
-    var thisObj = this;
-    setSort(thisObj, 3);
-  });
-  document.getElementsByTagName('th')[3].addEventListener('click', function () {
-    var thisObj = this;
-    setSort(thisObj, 4);
-  });
+  var links = document.querySelectorAll('strong');
+
+  for (var link of links) {
+    link.addEventListener('click', openUpbitPage);
+  }
+
+  var noticeBtns = document.querySelectorAll('.notice i');
+
+  for (var noticeBtn of noticeBtns) {
+    noticeBtn.addEventListener('click', function () {
+      openNoticeModal(this);
+    });
+  }
+
   SimpleScrollbar.initEl(document.querySelector('#tableBody'));
+}
+
+function getSortItemByIndex(index) {
+  switch (index) {
+    case 2:
+      return 'trade_price';
+    case 3:
+      return 'signed_change_rate';
+    case 4:
+      return 'acc_trade_price_24h';
+    default:
+      return 'none';
+  }
+}
+
+function openNoticeModal(el) {
+  var coinId = el.getAttribute('data');
+  var coinName = document.getElementById(coinId).getElementsByClassName('market')[0].getElementsByClassName(coinId)[0].textContent;
+  var coinPrice = document.getElementById(coinId).getElementsByClassName('trade_price')[0].textContent.replace(/,/g, '');
+  var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
+  var coinNoticePrice;
+  for (var key in coinNoticeJson) {
+    if (coinNoticeJson[key].market == coinId) {
+      coinNoticePrice = coinNoticeJson[key].notice;
+    }
+  }
+  var contentString;
+  if (coinNoticePrice != undefined) {
+    contentString = `※호가 단위에 맞게 가격을 설정해 주세요.
+    <div id="current-notice-info">
+    <h4 style="margin:4px 0px">현재 설정된 알림 : ${Number(
+      coinNoticePrice
+    ).toLocaleString()}KRW</h4><button class="remove-notice" id="${coinId}">알림 해제</button></div>`;
+  } else {
+    contentString = `※ 호가 단위에 맞게 가격을 설정해 주세요.`;
+  }
+  alertify.defaults.glossary.ok = '설정';
+  alertify.defaults.glossary.cancel = '취소';
+  alertify.prompt(
+    coinName,
+    contentString,
+    coinPrice,
+    function (evt, value) {
+      if (isNaN(value) || value <= 0) {
+        alertify.set('notifier', 'position', 'top-center');
+        alertify.error('알림 가격이 비정상적입니다.', 2);
+        evt.cancel = true;
+        return;
+      }
+      if (value >= 1000000000) {
+        alertify.set('notifier', 'position', 'top-center');
+        alertify.error('알림 가격이 비정상적입니다. 10억 이하로 설정해 주세요.', 2);
+        evt.cancel = true;
+        return;
+      }
+      var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
+      for (var key in coinNoticeJson) {
+        if (coinNoticeJson[key].market == coinId) {
+          coinNoticeJson.splice(key, 1);
+        }
+      }
+      coinNoticeJson.push({ market: coinId, notice: value });
+      localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
+      alertify.set('notifier', 'position', 'top-center');
+      alertify.message(`<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${Number(value).toLocaleString()}KRW</h3>`, 2);
+      document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
+      if (value == coinPrice) {
+        document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
+      }
+      chrome.runtime.sendMessage('');
+    },
+    function () {}
+  );
+  if (document.getElementsByClassName('remove-notice')[0] != undefined) {
+    document.getElementsByClassName('remove-notice')[0].addEventListener('click', function () {
+      removeNotice(this);
+    });
+  }
+}
+
+function removeNotice(el) {
+  if (document.getElementById('current-notice-info') != undefined) {
+    document.getElementById('current-notice-info').remove();
+  }
+  var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
+  for (var key in coinNoticeJson) {
+    if (coinNoticeJson[key].market == el.id) {
+      coinNoticeJson.splice(key, 1);
+    }
+  }
+  document.getElementById(el.id).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
+  localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
 }
 
 function colorModePreview(ele) {
