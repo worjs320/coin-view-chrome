@@ -315,11 +315,27 @@ function getPlusMinusNumber(theNumber) {
 }
 
 function getNumberUnit(theNumber) {
-  var result = theNumber.toLocaleString('ko-KR', {
-    maximumFractionDigits: 0,
-  });
-  if (theNumber >= 1000000000) {
-    result = result.substring(0, result.length - 8) + '백만';
+  var marketMode = document.getElementsByName('market-mode')[0].value;
+  var result = theNumber;
+  if (marketMode == 'KRW-') {
+    result = result.toLocaleString('ko-KR', {
+      maximumFractionDigits: 0,
+    });
+    if (theNumber >= 1000000000) {
+      result = result.substring(0, result.length - 8) + '백만';
+    }
+  } else if (marketMode == 'BTC-') {
+    result =
+      result.toLocaleString('ko-KR', {
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3,
+      }) + ' BTC';
+  } else if (marketMode == 'USDT') {
+    result = result.toLocaleString('en-US', {
+      maximumFractionDigits: 0,
+      style: 'currency',
+      currency: 'USD',
+    });
   }
   return result;
 }
@@ -479,6 +495,7 @@ function addButtonEventListener() {
 
   document.getElementsByName('market-mode')[0].addEventListener('change', function () {
     changeMarket(globalDataAll);
+    document.getElementById('searchBookmark').checked = false;
   });
 }
 
