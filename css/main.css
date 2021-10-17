@@ -75,8 +75,8 @@ th {
 
 input[type='search'] {
   background: transparent;
-  padding: 6px 10px 6px 32px;
-  border-radius: 10em;
+  padding: 3px 10px 3px 28px;
+  border-radius: 10px;
   width: 100%;
   font-size: 13px;
   box-sizing: border-box;
@@ -273,4 +273,21 @@ td {
 
 .notice {
   text-align: center;
+}
+
+.market-mode {
+  outline-style: none;
+  margin-right: 9px;
+  font-size: 13px;
+  border-radius: 3px;
+  border-color: #ababab;
+  background: transparent;
+}
+
+.dark-preview .market-mode {
+  color: white;
+}
+
+.dark-preview .market-mode option {
+  color: black;
 }

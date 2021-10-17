@@ -103,6 +103,7 @@
   font-size: 17px;
   margin-right: 1px;
   left: -5px;
+  top: -2px;
 }
 
 @-webkit-keyframes icon {
@@ -126,7 +127,7 @@ div.btn-container {
   display: flex;
   vertical-align: middle;
   text-align: center;
-  margin-left: 10px;
+  margin-left: 5px;
   align-items: center;
   width: 86px;
 }
