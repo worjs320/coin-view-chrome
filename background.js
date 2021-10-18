@@ -55,12 +55,7 @@ function onMessage(evt) {
     if (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice == jsonData.trade_price) {
       var currentTime = new Date();
       chrome.notifications.create('', {
-        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${jsonData.code.split('-')[0]} : ${jsonData.trade_price.toLocaleString(
-          navigator.language,
-          {
-            maximumFractionDigits: 2,
-          }
-        )}원 `,
+        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${jsonData.code.split('-')[0]}: ${jsonData.trade_price} ${jsonData.code.split('-')[0]} `,
         message: `${currentTime.toLocaleTimeString()}`,
         iconUrl: '/barak_icon_128px.png',
         type: 'basic',
