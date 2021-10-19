@@ -307,10 +307,15 @@ function onMessage(evt) {
 }
 
 function getPlusMinusNumber(theNumber) {
-  if (theNumber > 0) {
-    return '+' + theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
+  var marketMode = document.getElementsByName('market-mode')[0].value;
+  if (marketMode == 'KRW-') {
+    if (theNumber > 0) {
+      return '+' + theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
+    } else {
+      return theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
+    }
   } else {
-    return theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
+    return '';
   }
 }
 
@@ -492,6 +497,10 @@ function addButtonEventListener() {
     var eventFocus = new Event('click');
     document.getElementById('searchBookmark').dispatchEvent(eventFocus);
   }
+
+  document.getElementById('color_mode').addEventListener('change', function () {
+    colorModePreview(this);
+  });
 
   document.getElementsByName('market-mode')[0].addEventListener('change', function () {
     changeMarket(globalDataAll);
@@ -702,9 +711,6 @@ window.onload = function () {
     document.documentElement.setAttribute('color-theme', 'light');
     document.getElementsByTagName('body')[0].classList = 'white-preview';
   }
-  document.getElementById('color_mode').addEventListener('change', function () {
-    colorModePreview(this);
-  });
 
   var coinNotice = localStorage.getItem('coinNotice');
   if (coinNotice == null) {
