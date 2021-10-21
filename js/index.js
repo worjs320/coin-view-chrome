@@ -134,7 +134,8 @@ function openUpbitPage() {
 function init(jsonData) {
   globalDataAll = [...jsonData];
   var marketString = '';
-  var marketMode = document.getElementsByName('market-mode')[0].value;
+  var marketMode = localStorage.getItem('marketMode');
+  document.getElementsByName('market-mode')[0].value = marketMode;
 
   for (i = 0; i < jsonData.length; i++) {
     if (jsonData[i].market.substr(0, 4) != marketMode) {
@@ -503,6 +504,7 @@ function addButtonEventListener() {
   });
 
   document.getElementsByName('market-mode')[0].addEventListener('change', function () {
+    localStorage.setItem('marketMode', this.value);
     changeMarket(globalDataAll);
     document.getElementById('searchBookmark').checked = false;
   });
@@ -715,6 +717,11 @@ window.onload = function () {
   var coinNotice = localStorage.getItem('coinNotice');
   if (coinNotice == null) {
     localStorage.setItem('coinNotice', '[]');
+  }
+
+  var marketMode = localStorage.getItem('marketMode');
+  if (marketMode == null) {
+    localStorage.setItem('marketMode', 'KRW-');
   }
 
   document.getElementById('searchCoinInput').focus();
