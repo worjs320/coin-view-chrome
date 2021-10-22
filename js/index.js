@@ -13,7 +13,7 @@ function createTable(jsonData) {
   var tableHeader = document.createElement('table');
   tableHeader.id = 'coinHeader';
   tableHeader.innerHTML =
-    '<colgroup><col width="25px"><col width="22%"/><col width="55px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
+    '<colgroup><col width="25px"><col width="22%"/><col width="65px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
 
   var thead = tableHeader.createTHead(); // TABLE ROW.
   var sort = localStorage.getItem('sort') ? localStorage.getItem('sort') : 'down';
@@ -52,7 +52,7 @@ function createTable(jsonData) {
 
   var table = document.createElement('table');
   table.innerHTML =
-    '<colgroup><col width="25px"><col width="22%"/><col width="55px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
+    '<colgroup><col width="25px"><col width="22%"/><col width="65px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
   table.id = 'coinList';
   jsonData.sort(function (a, b) {
     if (sort == 'up') {
