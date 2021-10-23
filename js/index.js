@@ -3,6 +3,7 @@ var globalData;
 var globalDataAll;
 var websocket;
 var locale = 'ko-KR';
+var gloablKrwBtcPrice;
 fetch(url)
   .then((response) => response.json())
   .then((data) => init(data));
@@ -242,6 +243,9 @@ function onOpen(evt) {
     code.push(globalData[i].market);
   }
 
+  var marketMode = localStorage.getItem('marketMode');
+  if (marketMode != 'KRW-') code.push('KRW-BTC');
+
   var msg = [
     { ticket: 'test' },
     {
@@ -257,6 +261,12 @@ function onOpen(evt) {
 function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var jsonData = JSON.parse(enc.decode(evt.data));
+  var marketMode = localStorage.getItem('marketMode');
+
+  if (marketMode != 'KRW-' && jsonData.code == 'KRW-BTC') {
+    gloablKrwBtcPrice = jsonData.trade_price;
+    return;
+  }
 
   var privPrice = document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].textContent;
   document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].innerHTML = getTradePriceNumber(jsonData.trade_price);
