@@ -247,7 +247,7 @@ function onOpen(evt) {
   }
 
   var marketMode = localStorage.getItem('marketMode');
-  if (marketMode != 'KRW-') code.push('KRW-BTC');
+  if (marketMode != 'KRW-') code.unshift('KRW-BTC');
 
   var msg = [
     { ticket: 'test' },
@@ -277,6 +277,11 @@ function onMessage(evt) {
     locale,
     { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }
   );
+
+  if (marketMode == 'BTC-') {
+    document.getElementById(jsonData.code).getElementsByClassName('krw_trade_price')[0].innerHTML =
+      Math.ceil(jsonData.trade_price * gloablKrwBtcPrice) + ' KRW';
+  }
 
   var currentPrice = getTradePriceNumber(jsonData.trade_price);
   if (privPrice != currentPrice && privPrice != '') {
