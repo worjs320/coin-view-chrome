@@ -47,6 +47,12 @@ th {
 .trade_price {
   text-align: right;
   font-weight: bold;
+  margin: 0;
+}
+
+.krw_trade_price {
+  font-size: 11px;
+  font-weight: initial;
 }
 
 .acc_trade_price_24h {
@@ -204,6 +210,14 @@ input::placeholder {
 .dark-preview .FALL .percent span,
 .dark-preview .FALL .trade_price {
   color: #107bd0 !important;
+}
+
+.white-preview .krw_trade_price {
+  color: gray;
+}
+
+.dark-preview .krw_trade_price {
+  color: gray;
 }
 
 td {

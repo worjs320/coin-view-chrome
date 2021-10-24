@@ -105,10 +105,13 @@ function createTable(jsonData) {
           jsonData[i].market.split('-')[0] +
           '</span>';
       }
+      if (j == 2) {
+        tabCell.innerHTML = '<p class="trade_price"></p><span class="krw_trade_price"></span>';
+      }
       if (j == 3) {
         tabCell.innerHTML = '<p class="signed_change_rate"></p><span class="signed_change_price"></span>';
       }
-      if (j == col.length - 1) {
+      if (j == 5) {
         for (var key in coinNoticeJson) {
           if (coinNoticeJson[key].market == jsonData[i][className[1]]) {
             noticeColor = 'yellow';
@@ -268,8 +271,8 @@ function onMessage(evt) {
     return;
   }
 
-  var privPrice = document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].textContent;
-  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[0].innerHTML = getTradePriceNumber(jsonData.trade_price);
+  var privPrice = document.getElementById(jsonData.code).getElementsByClassName('trade_price')[1].textContent;
+  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[1].innerHTML = getTradePriceNumber(jsonData.trade_price);
   document.getElementById(jsonData.code).getElementsByClassName('signed_change_rate')[0].innerHTML = jsonData.signed_change_rate.toLocaleString(
     locale,
     { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }
