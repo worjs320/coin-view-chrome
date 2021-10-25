@@ -431,7 +431,6 @@ function cho_hangul(str) {
 }
 
 function onCheckBookmark() {
-  stopColorEvent();
   var el = this;
   if (el.checked == true) {
     var coinBookmarkInfo = JSON.parse(localStorage.getItem('coinBookmarkInfo')) || [];
@@ -496,13 +495,6 @@ function createNoneBookmarkTextCell() {
   });
 }
 
-function stopColorEvent() {
-  for (var i = 0; i < document.getElementsByClassName('trade_price').length; i++) {
-    document.getElementsByClassName('trade_price')[i].classList.remove('price-up');
-    document.getElementsByClassName('trade_price')[i].classList.remove('price-down');
-  }
-}
-
 function addButtonEventListener() {
   document.getElementById('searchBookmark').addEventListener('click', function () {
     onCheckBookmarkSearch(this);
@@ -549,11 +541,9 @@ function addTableSortEventListener() {
   var replace = replacement(myTable);
 
   function sortTD(index) {
-    stopColorEvent();
     replace.ascending(index);
   }
   function reverseTD(index) {
-    stopColorEvent();
     replace.descending(index);
   }
 
