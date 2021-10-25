@@ -608,7 +608,7 @@ function getSortItemByIndex(index) {
 function openNoticeModal(el) {
   var coinId = el.getAttribute('data');
   var coinName = document.getElementById(coinId).getElementsByClassName('market')[0].getElementsByClassName(coinId)[0].textContent;
-  var coinPrice = document.getElementById(coinId).getElementsByClassName('trade_price')[0].textContent.replace(/,/g, '');
+  var coinPrice = document.getElementById(coinId).getElementsByClassName('trade_price')[1].textContent.replace(/,/g, '');
   var coinNoticeJson = JSON.parse(localStorage.getItem('coinNotice')) || [];
   var coinNoticePrice;
   for (var key in coinNoticeJson) {
