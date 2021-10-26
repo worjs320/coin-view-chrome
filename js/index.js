@@ -34,7 +34,7 @@ function createTable(jsonData) {
         th.innerHTML = col[i];
       }
     }
-    if (i == 3 || i == 4) th.style = 'text-align:right';
+    if (i == 2 || i == 3 || i == 4) th.style = 'text-align:right';
     thead.appendChild(th);
   }
   function getSortIndexBySortItem(sortItem) {
