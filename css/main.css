@@ -51,8 +51,11 @@ th {
 }
 
 .krw_trade_price {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: initial;
+  color: #666;
+  white-space: nowrap;
+  letter-spacing: -0.5px;
 }
 
 .acc_trade_price_24h {
@@ -212,14 +215,6 @@ input::placeholder {
   color: #107bd0 !important;
 }
 
-.white-preview .krw_trade_price {
-  color: gray;
-}
-
-.dark-preview .krw_trade_price {
-  color: gray;
-}
-
 td {
   min-height: 100px;
   position: relative;
@@ -293,7 +288,7 @@ td {
   outline-style: none;
   margin-right: 9px;
   font-size: 13px;
-  height: 30px;
+  height: 26px;
   padding-bottom: 1px;
   border-radius: 5px;
   background: transparent;
