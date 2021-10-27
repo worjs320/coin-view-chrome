@@ -280,7 +280,7 @@ function onMessage(evt) {
 
   if (marketMode == 'BTC-') {
     document.getElementById(jsonData.code).getElementsByClassName('krw_trade_price')[0].innerHTML =
-      Math.ceil(jsonData.trade_price * gloablKrwBtcPrice) + ' KRW';
+      Math.ceil(jsonData.trade_price * gloablKrwBtcPrice).toLocaleString(locale) + ' KRW';
   }
 
   var currentPrice = getTradePriceNumber(jsonData.trade_price);
