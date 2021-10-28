@@ -268,6 +268,10 @@ function onMessage(evt) {
 
   if (marketMode != 'KRW-' && jsonData.code == 'KRW-BTC') {
     gloablKrwBtcPrice = jsonData.trade_price;
+    document.querySelectorAll('td[class=trade_price]').forEach(function (price) {
+      price.getElementsByClassName('krw_trade_price')[0].innerHTML =
+        Math.ceil(price.getElementsByClassName('trade_price')[0].textContent * gloablKrwBtcPrice).toLocaleString(locale) + ' KRW';
+    });
     return;
   }
 
