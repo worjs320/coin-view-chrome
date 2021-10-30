@@ -4,9 +4,6 @@ var globalDataAll;
 var websocket;
 var locale = 'ko-KR';
 var gloablKrwBtcPrice;
-fetch(url)
-  .then((response) => response.json())
-  .then((data) => init(data));
 
 function createTable(jsonData) {
   var col = ['', '마켓', '현재가', '전일대비', '거래대금', '알림'];
@@ -247,7 +244,7 @@ function onOpen(evt) {
   }
 
   var marketMode = localStorage.getItem('marketMode');
-  if (marketMode != 'KRW-') code.unshift('KRW-BTC');
+  if (marketMode == 'BTC-') code.unshift('KRW-BTC');
 
   var msg = [
     { ticket: 'test' },
@@ -266,7 +263,7 @@ function onMessage(evt) {
   var jsonData = JSON.parse(enc.decode(evt.data));
   var marketMode = localStorage.getItem('marketMode');
 
-  if (marketMode != 'KRW-' && jsonData.code == 'KRW-BTC') {
+  if (marketMode == 'BTC-' && jsonData.code == 'KRW-BTC') {
     gloablKrwBtcPrice = jsonData.trade_price;
     document.querySelectorAll('td[class=trade_price]').forEach(function (price) {
       price.getElementsByClassName('krw_trade_price')[0].innerHTML =
@@ -737,4 +734,8 @@ window.onload = function () {
   }
 
   document.getElementById('searchCoinInput').focus();
+
+  fetch(url)
+    .then((response) => response.json())
+    .then((data) => init(data));
 };
