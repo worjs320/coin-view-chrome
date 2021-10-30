@@ -4,6 +4,7 @@ var globalDataAll;
 var websocket;
 var locale = 'ko-KR';
 var gloablKrwBtcPrice;
+var fetchOption = { mode: 'cors', credentials: 'omit' };
 
 function createTable(jsonData) {
   var col = ['', '마켓', '현재가', '전일대비', '거래대금', '알림'];
@@ -151,7 +152,7 @@ function init(jsonData) {
   }
 
   globalData = jsonData;
-  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString)
+  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString, fetchOption)
     .then((response) => response.json())
     .then((data) => createTable(data))
     .then(() => getMarketName())
@@ -184,7 +185,7 @@ function changeMarket(jsonData) {
   }
 
   globalData = jsonData;
-  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString)
+  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString, fetchOption)
     .then((response) => response.json())
     .then((data) => createTable(data))
     .then(() => getMarketName())
@@ -735,7 +736,7 @@ window.onload = function () {
 
   document.getElementById('searchCoinInput').focus();
 
-  fetch(url)
+  fetch(url, fetchOption)
     .then((response) => response.json())
     .then((data) => init(data));
 };
