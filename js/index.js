@@ -268,7 +268,7 @@ function onMessage(evt) {
     gloablKrwBtcPrice = jsonData.trade_price;
     document.querySelectorAll('td[class=trade_price]').forEach(function (price) {
       price.getElementsByClassName('krw_trade_price')[0].innerHTML =
-        Math.ceil(price.getElementsByClassName('trade_price')[0].textContent * gloablKrwBtcPrice).toLocaleString(locale) + ' KRW';
+        getKrwTradePriceNumber(price.getElementsByClassName('trade_price')[0].textContent * gloablKrwBtcPrice) + ' KRW';
     });
     return;
   }
@@ -282,7 +282,7 @@ function onMessage(evt) {
 
   if (marketMode == 'BTC-') {
     document.getElementById(jsonData.code).getElementsByClassName('krw_trade_price')[0].innerHTML =
-      Math.ceil(jsonData.trade_price * gloablKrwBtcPrice).toLocaleString(locale) + ' KRW';
+      getKrwTradePriceNumber(jsonData.trade_price * gloablKrwBtcPrice) + ' KRW';
   }
 
   var currentPrice = getTradePriceNumber(jsonData.trade_price);
@@ -377,6 +377,19 @@ function getTradePriceNumber(theNumber) {
     minCount = 4;
   } else {
     minCount = 8;
+  }
+  return theNumber.toLocaleString(locale, {
+    minimumFractionDigits: minCount,
+    maximumFractionDigits: maxCount,
+  });
+}
+
+function getKrwTradePriceNumber(theNumber) {
+  var minCount = 0;
+  var maxCount = 0;
+  if (theNumber <= 100) {
+    minCount = 2;
+    maxCount = 2;
   }
   return theNumber.toLocaleString(locale, {
     minimumFractionDigits: minCount,
