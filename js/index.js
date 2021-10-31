@@ -12,7 +12,7 @@ function createTable(jsonData) {
   var tableHeader = document.createElement('table');
   tableHeader.id = 'coinHeader';
   tableHeader.innerHTML =
-    '<colgroup><col width="25px"><col width="22%"/><col width="65px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
+    '<colgroup><col width="25px"><col width="24%"/><col width="65px"/><col width="60px"/><col width="24%"/><col width="25px"/></colgroup>';
 
   var thead = tableHeader.createTHead(); // TABLE ROW.
   var sort = localStorage.getItem('sort') ? localStorage.getItem('sort') : 'down';
@@ -51,7 +51,7 @@ function createTable(jsonData) {
 
   var table = document.createElement('table');
   table.innerHTML =
-    '<colgroup><col width="25px"><col width="22%"/><col width="65px"/><col width="60px"/><col width="25%"/><col width="25px"/></colgroup>';
+    '<colgroup><col width="25px"><col width="24%"/><col width="65px"/><col width="60px"/><col width="24%"/><col width="25px"/></colgroup>';
   table.id = 'coinList';
   jsonData.sort(function (a, b) {
     if (sort == 'up') {
@@ -262,7 +262,7 @@ function onOpen(evt) {
 function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var jsonData = JSON.parse(enc.decode(evt.data));
-  var marketMode = localStorage.getItem('marketMode');
+  var marketMode = document.getElementsByName('market-mode')[0].value;
 
   if (marketMode == 'BTC-' && jsonData.code == 'KRW-BTC') {
     gloablKrwBtcPrice = jsonData.trade_price;
