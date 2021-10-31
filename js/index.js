@@ -152,13 +152,17 @@ function init(jsonData) {
   }
 
   globalData = jsonData;
+
   fetch('https://api.upbit.com/v1/ticker?markets=' + marketString, fetchOption)
     .then((response) => response.json())
     .then((data) => createTable(data))
     .then(() => getMarketName())
     .then(() => addButtonEventListener())
     .then(() => addTableSortEventListener())
-    .then(() => webSocketConfig());
+    .then(() => webSocketConfig())
+    .catch(() => {
+      createServerErrorTextCell();
+    });
 }
 
 function changeMarket(jsonData) {
@@ -190,7 +194,10 @@ function changeMarket(jsonData) {
     .then((data) => createTable(data))
     .then(() => getMarketName())
     .then(() => addTableSortEventListener())
-    .then(() => webSocketConfig());
+    .then(() => webSocketConfig())
+    .catch(() => {
+      createServerErrorTextCell();
+    });
 }
 
 function getMarketName() {
@@ -512,6 +519,12 @@ function createNoneBookmarkTextCell() {
   });
 }
 
+function createServerErrorTextCell() {
+  var cell = document.getElementById('tableHeader');
+  cell.style = 'text-align:center; padding: 30px 0; font-size:15px;';
+  cell.innerHTML = '<b style="font-size:17px">서버에 연결할 수 없습니다.</b> <br>서비스가 점검중이거나, 일시적인 장애일 수 있습니다.';
+}
+
 function addButtonEventListener() {
   document.getElementById('searchBookmark').addEventListener('click', function () {
     onCheckBookmarkSearch(this);
@@ -532,6 +545,7 @@ function addButtonEventListener() {
 
   document.getElementsByName('market-mode')[0].addEventListener('change', function () {
     localStorage.setItem('marketMode', this.value);
+    localStorage.removeItem('bookmarkStatus');
     changeMarket(globalDataAll);
     document.getElementById('searchBookmark').checked = false;
   });
@@ -762,5 +776,8 @@ window.onload = function () {
 
   fetch(url, fetchOption)
     .then((response) => response.json())
-    .then((data) => init(data));
+    .then((data) => init(data))
+    .catch(() => {
+      createServerErrorTextCell();
+    });
 };
