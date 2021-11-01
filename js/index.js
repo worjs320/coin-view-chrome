@@ -398,6 +398,7 @@ function getKrwTradePriceNumber(theNumber) {
 }
 
 function searchCoin() {
+  stopColorEvent();
   var input = document.getElementById('searchCoinInput');
   var filter = input.value.toUpperCase();
   var choFilter = cho_hangul(input.value.toUpperCase());
@@ -468,6 +469,7 @@ function onCheckBookmark() {
 }
 
 function onCheckBookmarkSearch(el) {
+  stopColorEvent();
   document.getElementById('searchCoinInput').value = '';
   var table, tr, checked, i;
   table = document.getElementById('coinList');
@@ -556,9 +558,11 @@ function addTableSortEventListener() {
   var replace = replacement(myTable);
 
   function sortTD(index) {
+    stopColorEvent();
     replace.ascending(index);
   }
   function reverseTD(index) {
+    stopColorEvent();
     replace.descending(index);
   }
 
@@ -617,6 +621,13 @@ function getSortItemByIndex(index) {
       return 'acc_trade_price_24h';
     default:
       return 'none';
+  }
+}
+
+function stopColorEvent() {
+  for (var i = 0; i < document.getElementsByClassName('trade_price').length; i++) {
+    document.getElementsByClassName('trade_price')[i].classList.remove('price-up');
+    document.getElementsByClassName('trade_price')[i].classList.remove('price-down');
   }
 }
 
