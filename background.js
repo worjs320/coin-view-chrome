@@ -47,6 +47,24 @@ function onOpen() {
   websocket.send(msg);
 }
 
+function getTradePriceNumber(theNumber) {
+  var minCount = 0;
+  var maxCount = 20;
+  if (theNumber >= 10) {
+    maxCount = 3;
+  } else if (theNumber > 1) {
+    minCount = 2;
+  } else if (theNumber > 0.1) {
+    minCount = 4;
+  } else {
+    minCount = 8;
+  }
+  return theNumber.toLocaleString('ko-KR', {
+    minimumFractionDigits: minCount,
+    maximumFractionDigits: maxCount,
+  });
+}
+
 function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var jsonData = JSON.parse(enc.decode(evt.data));
@@ -55,7 +73,9 @@ function onMessage(evt) {
     if (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice == jsonData.trade_price) {
       var currentTime = new Date();
       chrome.notifications.create('', {
-        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${jsonData.code.split('-')[0]}: ${jsonData.trade_price} ${jsonData.code.split('-')[0]} `,
+        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${jsonData.code.split('-')[0]}: ${getTradePriceNumber(jsonData.trade_price)} ${
+          jsonData.code.split('-')[0]
+        } `,
         message: `${currentTime.toLocaleTimeString()}`,
         iconUrl: '/barak_icon_128px.png',
         type: 'basic',

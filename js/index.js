@@ -170,6 +170,7 @@ function changeMarket(jsonData) {
   if (websocket != undefined) websocket.close();
 
   document.getElementById('tableHeader').innerHTML = '';
+  document.getElementById('tableHeader').style = '';
   document.getElementById('tableBody').innerHTML = '';
 
   var marketString = '';
@@ -660,7 +661,7 @@ function openNoticeModal(el) {
   if (coinNoticePrice != undefined) {
     contentString = `※호가 단위에 맞게 가격을 설정해 주세요.
     <div id="current-notice-info">
-    <h4 style="margin:4px 0px">현재 설정된 알림: ${coinNoticePrice} ${
+    <h4 style="margin:4px 0px">현재 설정된 알림: ${getTradePriceNumber(Number(coinNoticePrice))} ${
       coinId.split('-')[0]
     }</h4><button class="remove-notice" id="${coinId}">알림 해제</button></div>`;
   } else {
@@ -694,7 +695,7 @@ function openNoticeModal(el) {
       coinNoticeJson.push({ market: coinId, notice: value });
       localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
       alertify.set('notifier', 'position', 'top-center');
-      alertify.message(`<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${getTradePriceNumber(value)} ${coinId.split('-')[0]}</h3>`, 2);
+      alertify.message(`<h2>지정가 알림 설정<br/></h2><h3>${coinName} : ${getTradePriceNumber(Number(value))} ${coinId.split('-')[0]}</h3>`, 2);
       document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
       if (value == coinPrice) {
         document.getElementById(coinId).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
