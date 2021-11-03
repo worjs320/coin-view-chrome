@@ -166,6 +166,7 @@ function init(jsonData) {
 }
 
 function changeMarket(jsonData) {
+  document.getElementsByClassName('market-mode')[0].setAttribute('disabled', 'disabled');
   globalDataAll = [...jsonData];
   if (websocket != undefined) websocket.close();
 
@@ -195,6 +196,9 @@ function changeMarket(jsonData) {
     .then((data) => createTable(data))
     .then(() => getMarketName())
     .then(() => addTableSortEventListener())
+    .then(() => {
+      document.getElementsByClassName('market-mode')[0].removeAttribute('disabled');
+    })
     .then(() => webSocketConfig())
     .catch(() => {
       createServerErrorTextCell();
@@ -521,9 +525,11 @@ function createNoneBookmarkTextCell() {
 }
 
 function createServerErrorTextCell() {
-  var cell = document.getElementById('tableHeader');
-  cell.style = 'text-align:center; padding: 30px 0; font-size:15px;';
-  cell.innerHTML = '<b style="font-size:17px">서버에 연결할 수 없습니다.</b> <br>서비스가 점검중이거나, 일시적인 장애일 수 있습니다.';
+  var tableHeader = document.getElementById('tableHeader');
+  var tableBody = document.getElementById('tableBody');
+  tableHeader.style = 'text-align: center; padding: 30px 0; font-size: 15px;';
+  tableHeader.innerHTML = '<b style="font-size:17px">서버에 연결할 수 없습니다.</b> <br>서비스가 점검중이거나, 일시적인 장애일 수 있습니다.';
+  tableBody.innerHTML = '';
 }
 
 function addButtonEventListener() {
