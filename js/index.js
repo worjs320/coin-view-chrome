@@ -359,12 +359,12 @@ function getNumberUnit(theNumber) {
     result = Math.round(theNumber / 1000000).toLocaleString(locale, { maximumFractionDigits: 0 }) + '백만';
   } else if (marketMode == 'BTC-') {
     result =
-      result.toLocaleString('ko-KR', {
+      theNumber.toLocaleString('ko-KR', {
         minimumFractionDigits: 3,
         maximumFractionDigits: 3,
       }) + ' BTC';
   } else if (marketMode == 'USDT') {
-    result = result.toLocaleString('en-US', {
+    result = theNumber.toLocaleString('en-US', {
       maximumFractionDigits: 0,
       style: 'currency',
       currency: 'USD',
