@@ -10,8 +10,8 @@ function sortingNumber(a, b) {
   var a = (a + '').replace(/[,\s\xA0]+/g, '');
   var b = (b + '').replace(/[,\s\xA0]+/g, '');
 
-  var numA = parseFloat(a) + '';
-  var numB = parseFloat(b) + '';
+  var numA = parseFloat(a);
+  var numB = parseFloat(b);
 
   if (numA == 'NaN' || numB == 'NaN' || a != numA || b != numB) return false;
 
