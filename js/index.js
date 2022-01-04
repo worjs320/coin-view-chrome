@@ -286,7 +286,7 @@ function onMessage(evt) {
   }
 
   var privPrice = document.getElementById(jsonData.code).getElementsByClassName('trade_price')[1].textContent;
-  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[1].innerHTML = getTradePriceNumber(jsonData.trade_price);
+  document.getElementById(jsonData.code).getElementsByClassName('trade_price')[1].innerHTML = getTradePriceNumber(jsonData.trade_price, marketMode);
   document.getElementById(jsonData.code).getElementsByClassName('signed_change_rate')[0].innerHTML = jsonData.signed_change_rate.toLocaleString(
     locale,
     { style: 'percent', minimumFractionDigits: 2, maximumFractionDigits: 2 }
@@ -373,14 +373,17 @@ function getNumberUnit(theNumber) {
   return result;
 }
 
-function getTradePriceNumber(theNumber) {
+function getTradePriceNumber(theNumber, marketMode) {
   var minCount = 0;
   var maxCount = 20;
   if (theNumber >= 10) {
     maxCount = 3;
   } else if (theNumber > 1) {
     minCount = 2;
+    maxCount = 3;
   } else if (theNumber > 0.1) {
+    minCount = 4;
+  } else if (theNumber > 0.1 || marketMode == 'KRW-') {
     minCount = 4;
   } else {
     minCount = 8;
