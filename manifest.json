@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Barak - Upbit API 기반 비트코인(Bitcoin) 시세 현황판",
   "version": "4.0.4",
   "description": "Upbit API 기반 비트코인(Bitcoin) 시세 현황판입니다.",
@@ -8,7 +8,7 @@
     "48": "./barak_icon.png",
     "128": "./barak_icon.png"
   },
-  "browser_action": {
+  "action": {
     "default_popup": "index.html",
     "default_icon": "barak_icon.png"
   },
@@ -22,7 +22,7 @@
     }
   },
   "background": {
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
-  "permissions": ["notifications"]
+  "permissions": ["notifications", "storage"]
 }
