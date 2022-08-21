@@ -1,11 +1,36 @@
 var globalData = [];
 var websocket;
+var locale = 'ko-KR';
+const getObjectFromLocalStorage = async function (key) {
+  return new Promise((resolve, reject) => {
+    try {
+      chrome.storage.sync.get(key, function (value) {
+        resolve(value[key]);
+      });
+    } catch (ex) {
+      reject(ex);
+    }
+  });
+};
+
+const saveObjectInLocalStorage = async function (obj) {
+  return new Promise((resolve, reject) => {
+    try {
+      chrome.storage.sync.set(obj, function () {
+        resolve();
+      });
+    } catch (ex) {
+      reject(ex);
+    }
+  });
+};
+
 init();
-function init() {
+async function init() {
   if (websocket != undefined) websocket.close();
   globalData = [];
   var marketString = '';
-  var coinNoticeJson = localStorage.getItem('coinNotice') ? JSON.parse(localStorage.getItem('coinNotice')) : [];
+  var coinNoticeJson = (await getObjectFromLocalStorage('coinNotice')) || [];
   if (coinNoticeJson.length == 0) {
     return;
   }
@@ -47,35 +72,36 @@ function onOpen() {
   websocket.send(msg);
 }
 
-function getTradePriceNumber(theNumber) {
+function getTradePriceNumber(theNumber, marketMode) {
   var minCount = 0;
   var maxCount = 20;
   if (theNumber >= 10) {
     maxCount = 3;
   } else if (theNumber > 1) {
     minCount = 2;
+    maxCount = 3;
   } else if (theNumber > 0.1) {
+    minCount = 4;
+  } else if (theNumber > 0.1 || marketMode == 'KRW') {
     minCount = 4;
   } else {
     minCount = 8;
   }
-  return theNumber.toLocaleString('ko-KR', {
+  return theNumber.toLocaleString(locale, {
     minimumFractionDigits: minCount,
     maximumFractionDigits: maxCount,
   });
 }
 
-function onMessage(evt) {
+async function onMessage(evt) {
   var enc = new TextDecoder('utf-8');
   var jsonData = JSON.parse(enc.decode(evt.data));
-  var coinNoticeJson = localStorage.getItem('coinNotice') ? JSON.parse(localStorage.getItem('coinNotice')) : [];
+  var coinNoticeJson = (await getObjectFromLocalStorage('coinNotice')) || [];
   for (var key in coinNoticeJson) {
     if (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice == jsonData.trade_price) {
       var currentTime = new Date();
       chrome.notifications.create('', {
-        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${jsonData.code.split('-')[0]}: ${getTradePriceNumber(jsonData.trade_price)} ${
-          jsonData.code.split('-')[0]
-        } `,
+        title: `지정가 도달\n${jsonData.code.split('-')[1]}/${jsonData.code.split('-')[0]}: ${getTradePriceNumber(jsonData.trade_price, jsonData.code.split('-')[0])} ${jsonData.code.split('-')[0]} `,
         message: `${currentTime.toLocaleTimeString()}`,
         iconUrl: '/barak_icon_128px.png',
         type: 'basic',
@@ -85,7 +111,9 @@ function onMessage(evt) {
           coinNoticeJson.splice(key, 1);
         }
       }
-      localStorage.setItem('coinNotice', JSON.stringify(coinNoticeJson));
+      await saveObjectInLocalStorage({
+        coinNotice: coinNoticeJson,
+      });
       init();
     }
   }
