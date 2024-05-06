@@ -5,9 +5,16 @@
   display: none;
 }
 
+html {
+  height: 590px;
+  overflow-y: hidden;
+}
+
 body {
   font-size: 14px;
   transition: 0.5s background ease;
+  overflow-y: hidden;
+  height: 590px;
 }
 
 table {

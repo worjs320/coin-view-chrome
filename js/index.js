@@ -494,7 +494,6 @@ async function onCheckBookmark() {
     coinBookmarkInfo.push({ market: el.id });
     saveObjectInLocalStorage({ coinBookmarkInfo: coinBookmarkInfo });
   } else {
-    console.log(getObjectFromLocalStorage('coinBookmarkInfo'));
     var coinBookmarkInfo = (await getObjectFromLocalStorage('coinBookmarkInfo')) || [];
     for (var key in coinBookmarkInfo) {
       if (coinBookmarkInfo[key].market == el.id) {
@@ -805,7 +804,6 @@ window.onload = async function () {
   }
 
   var coinNotice = await getObjectFromLocalStorage('coinNotice');
-  console.log(coinNotice);
   if (coinNotice == undefined) {
     await saveObjectInLocalStorage({ coinNotice: [] });
   }
@@ -823,4 +821,7 @@ window.onload = async function () {
     .catch(() => {
       createServerErrorTextCell();
     });
+
+  var adIframe = document.getElementById('adIframe');
+  adIframe.src = 'https://barak-ad.pages.dev/post/370_50_ad';
 };
