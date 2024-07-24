@@ -26,11 +26,8 @@ table {
   table-layout: fixed;
 }
 
-th:not(:last-child) {
-  cursor: pointer;
-}
-
 th {
+  cursor: pointer;
   user-select: none;
 }
 

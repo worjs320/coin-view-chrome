@@ -61,7 +61,7 @@ async function createTable(jsonData) {
     } else if (i > 1) {
       if (i == getSortIndexBySortItem(sortItem)) {
         th.innerHTML = col[i] + ' <i class="fas fa-sort-' + sort + '"></i>';
-      } else if (i < col.length - 1) {
+      } else if (i < col.length) {
         th.innerHTML = col[i] + ' <i class="fas fa-sort"></i>';
       } else {
         th.innerHTML = col[i];
@@ -143,7 +143,8 @@ async function createTable(jsonData) {
           '<strong class="' +
           jsonData[i].market +
           '">' +
-          '</strong><i class="warning" style="display:none">유의</i><span>' +
+          '</strong><i class="warning" style="display:none">유의</i>' +
+          '<i class="caution" style="display:none">주의</i><span>' +
           jsonData[i].market.split('-')[1] +
           '/' +
           jsonData[i].market.split('-')[0] +
@@ -206,11 +207,27 @@ function initTableData(jsonData, gloablKrwBtcPrice) {
 
     document.getElementById(jsonData[i].market).getElementsByClassName('acc_trade_price_24h')[0].innerHTML = getNumberUnit(jsonData[i].acc_trade_price_24h);
     document.getElementById(jsonData[i].market).className = jsonData[i].change;
+  }
 
-    if (jsonData[i].market_warning == 'CAUTION') {
-      document.getElementById(jsonData[i].market).getElementsByClassName('warning')[0].style.display = 'inline-block';
+  for (var i = 0; i < globalData.length; i++) {
+    if (globalData[i].market_event.warning) {
+      document.getElementById(globalData[i].market).getElementsByClassName('warning')[0].style.display = 'inline-block';
     } else {
-      document.getElementById(jsonData[i].market).getElementsByClassName('warning')[0].style.display = 'none';
+      document.getElementById(globalData[i].market).getElementsByClassName('warning')[0].style.display = 'none';
+    }
+
+    if (globalData[i].market_event.caution.CONCENTRATION_OF_SMALL_ACCOUNTS) {
+      document.getElementById(globalData[i].market).getElementsByClassName('caution')[0].style.display = 'inline-block';
+    } else if (globalData[i].market_event.caution.PRICE_FLUCTUATIONS) {
+      document.getElementById(globalData[i].market).getElementsByClassName('caution')[0].style.display = 'inline-block';
+    } else if (globalData[i].market_event.caution.GLOBAL_PRICE_DIFFERENCES) {
+      document.getElementById(globalData[i].market).getElementsByClassName('caution')[0].style.display = 'inline-block';
+    } else if (globalData[i].market_event.caution.DEPOSIT_AMOUNT_SOARING) {
+      document.getElementById(globalData[i].market).getElementsByClassName('caution')[0].style.display = 'inline-block';
+    } else if (globalData[i].market_event.caution.TRADING_VOLUME_SOARING) {
+      document.getElementById(globalData[i].market).getElementsByClassName('caution')[0].style.display = 'inline-block';
+    } else {
+      document.getElementById(globalData[i].market).getElementsByClassName('caution')[0].style.display = 'none';
     }
   }
 }
@@ -419,12 +436,6 @@ async function onMessage(evt) {
   // if (coinNoticeJson.length == 0) {
   //   document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
   // }
-
-  if (jsonData.market_warning == 'CAUTION') {
-    document.getElementById(jsonData.code).getElementsByClassName('warning')[0].style.display = 'inline-block';
-  } else {
-    document.getElementById(jsonData.code).getElementsByClassName('warning')[0].style.display = 'none';
-  }
 }
 
 function getPlusMinusNumber(theNumber) {
@@ -678,7 +689,7 @@ function addTableSortEventListener() {
   }
 
   function setSort(thisObj, index) {
-    for (var i = 0; i < document.getElementsByTagName('th').length - 1; i++) {
+    for (var i = 0; i < document.getElementsByTagName('th').length; i++) {
       if (i != index - 1 && i != 0) document.getElementsByTagName('th')[i].getElementsByTagName('i')[0].className = 'fas fa-sort';
     }
     if (thisObj.getElementsByTagName('i')[0].classList.contains('fa-sort-up')) {
@@ -869,7 +880,7 @@ window.onload = async function () {
   }
 
   var marketMode = await getObjectFromLocalStorage('marketMode');
-  if (marketMode == undefined) {
+  if (marketMode == undefined || marketMode == 'KRW-' || marketMode == 'BTC-') {
     saveObjectInLocalStorage({ marketMode: 'KRW' });
   }
 

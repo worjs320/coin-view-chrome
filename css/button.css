@@ -289,8 +289,20 @@ p.by a {
 .remove-notice:hover {
   background-color: #e0e0e0;
 }
+/* 유의 */
 .warning {
-  background: #e87417;
+  background: #f2ad25;
+  color: white;
+  font-style: normal;
+  border-radius: 2px;
+  font-size: 10px;
+  padding: 0 2px 0 1px;
+  line-height: 13px;
+  user-select: none;
+}
+/* 주의 */
+.caution {
+  background: #e97415;
   color: white;
   font-style: normal;
   border-radius: 2px;
