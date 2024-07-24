@@ -25,7 +25,7 @@ const saveObjectInLocalStorage = async function (obj) {
   });
 };
 
-init();
+// init();
 async function init() {
   if (websocket != undefined) websocket.close();
   globalData = [];

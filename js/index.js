@@ -1,4 +1,5 @@
-var url = 'https://api.upbit.com/v1/market/all';
+var apiServer = 'https://barak-api-server.onrender.com/api';
+var websocketServer = 'wss://barak-api-server.onrender.com/ws'
 var globalData;
 var globalDataAll;
 var websocket;
@@ -42,11 +43,11 @@ const removeObjectFromLocalStorage = async function (keys) {
 };
 
 async function createTable(jsonData) {
-  var col = ['', '마켓', '현재가', '전일대비', '거래대금', '알림'];
+  var col = ['', '마켓', '현재가', '전일대비', '거래대금'];
 
   var tableHeader = document.createElement('table');
   tableHeader.id = 'coinHeader';
-  tableHeader.innerHTML = '<colgroup><col width="25px"><col width="24%"/><col width="65px"/><col width="60px"/><col width="24%"/><col width="25px"/></colgroup>';
+  tableHeader.innerHTML = '<colgroup><col width="25px"><col width="24%"/><col width="65px"/><col width="60px"/><col width="24%"/></colgroup>';
 
   var thead = tableHeader.createTHead(); // TABLE ROW.
   var sort = (await getObjectFromLocalStorage('sort')) ? await getObjectFromLocalStorage('sort') : 'down';
@@ -84,7 +85,7 @@ async function createTable(jsonData) {
   var className = ['bookmark', 'market', 'trade_price', 'percent', 'acc_trade_price_24h', 'notice'];
 
   var table = document.createElement('table');
-  table.innerHTML = '<colgroup><col width="25px"><col width="24%"/><col width="65px"/><col width="60px"/><col width="24%"/><col width="25px"/></colgroup>';
+  table.innerHTML = '<colgroup><col width="25px"><col width="24%"/><col width="65px"/><col width="60px"/><col width="24%"/></colgroup>';
   table.id = 'coinList';
   jsonData.sort(function (a, b) {
     if (sort == 'up') {
@@ -95,6 +96,18 @@ async function createTable(jsonData) {
   });
 
   var coinNoticeJson = (await getObjectFromLocalStorage('coinNotice')) || [];
+  var marketMode = document.getElementsByName('market-mode')[0].value;
+  var gloablKrwBtcPrice = null;
+  
+  if (marketMode == 'BTC') {
+    for (var i = 0; i < jsonData.length; i++) {
+      if (jsonData[i].market == 'KRW-BTC') {
+        gloablKrwBtcPrice = jsonData[i].trade_price;
+        jsonData.splice(i, 1);
+        break;
+      }
+    }
+  }
 
   for (var i = 0; i < jsonData.length; i++) {
     tr = table.insertRow(-1);
@@ -158,7 +171,48 @@ async function createTable(jsonData) {
   document.getElementById('tableHeader').appendChild(tableHeader);
   document.getElementById('tableBody').appendChild(table);
 
+  initTableData(jsonData, gloablKrwBtcPrice);
+
   return jsonData;
+}
+
+function initTableData(jsonData, gloablKrwBtcPrice) {
+  var marketMode = document.getElementsByName('market-mode')[0].value;
+
+  for (var i = 0; i < jsonData.length; i++) {
+    var privPrice = document.getElementById(jsonData[i].market).getElementsByClassName('trade_price')[1].textContent;
+    document.getElementById(jsonData[i].market).getElementsByClassName('trade_price')[1].innerHTML = getTradePriceNumber(jsonData[i].trade_price, marketMode);
+    document.getElementById(jsonData[i].market).getElementsByClassName('signed_change_rate')[0].innerHTML = jsonData[i].signed_change_rate.toLocaleString(locale, {
+      style: 'percent',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+
+    if (marketMode == 'BTC') {
+      document.getElementById(jsonData[i].market).getElementsByClassName('krw_trade_price')[0].innerHTML = getKrwTradePriceNumber(jsonData[i].trade_price * gloablKrwBtcPrice) + ' KRW';
+    }
+
+    var currentPrice = getTradePriceNumber(jsonData[i].trade_price);
+    if (privPrice != currentPrice && privPrice != '') {
+      if (privPrice < currentPrice) {
+        document.getElementById(jsonData[i].market).getElementsByClassName('trade_price')[0].classList.remove('price-down');
+        document.getElementById(jsonData[i].market).getElementsByClassName('trade_price')[0].classList.add('price-up');
+      } else if (privPrice > currentPrice) {
+        document.getElementById(jsonData[i].market).getElementsByClassName('trade_price')[0].classList.remove('price-up');
+        document.getElementById(jsonData[i].market).getElementsByClassName('trade_price')[0].classList.add('price-down');
+      }
+    }
+    document.getElementById(jsonData[i].market).getElementsByClassName('signed_change_price')[0].innerHTML = getPlusMinusNumber(jsonData[i].signed_change_price);
+
+    document.getElementById(jsonData[i].market).getElementsByClassName('acc_trade_price_24h')[0].innerHTML = getNumberUnit(jsonData[i].acc_trade_price_24h);
+    document.getElementById(jsonData[i].market).className = jsonData[i].change;
+
+    if (jsonData[i].market_warning == 'CAUTION') {
+      document.getElementById(jsonData[i].market).getElementsByClassName('warning')[0].style.display = 'inline-block';
+    } else {
+      document.getElementById(jsonData[i].market).getElementsByClassName('warning')[0].style.display = 'none';
+    }
+  }
 }
 
 function openUpbitPage() {
@@ -173,12 +227,13 @@ async function init(jsonData) {
   document.getElementsByName('market-mode')[0].value = marketMode;
 
   for (i = 0; i < jsonData.length; i++) {
-    if (jsonData[i].market.substr(0, 4) != marketMode) {
+    if (jsonData[i].market.split('-')[0] != marketMode) {
       jsonData.splice(i, 1);
       i--;
     }
   }
 
+  if (marketMode == 'BTC') marketString += 'KRW-BTC,';
   for (i = 0; i < jsonData.length; i++) {
     marketString += jsonData[i].market;
     if (i < jsonData.length - 1) marketString += ',';
@@ -186,7 +241,7 @@ async function init(jsonData) {
 
   globalData = jsonData;
 
-  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString, fetchOption)
+  fetch(apiServer + '/v1/ticker?markets=' + marketString, fetchOption)
     .then((response) => response.json())
     .then((data) => createTable(data))
     .then(() => getMarketName())
@@ -195,6 +250,7 @@ async function init(jsonData) {
     .then(() => webSocketConfig())
     .catch((e) => {
       alert(e);
+      console.error(e);
       createServerErrorTextCell();
     });
 }
@@ -211,21 +267,22 @@ function changeMarket(jsonData) {
   var marketString = '';
   var marketMode = document.getElementsByName('market-mode')[0].value;
   for (i = 0; i < jsonData.length; i++) {
-    if (jsonData[i].market.substr(0, 4) != marketMode) {
+    if (jsonData[i].market.split('-')[0] != marketMode) {
       jsonData.splice(i, 1);
       i--;
     }
   }
 
+  if (marketMode == 'BTC') marketString += 'KRW-BTC,';
   for (i = 0; i < jsonData.length; i++) {
-    if (jsonData[i].market.substr(0, 4) == marketMode) {
+    if (jsonData[i].market.split('-')[0] == marketMode) {
       marketString += jsonData[i].market;
       if (i < jsonData.length - 1) marketString += ',';
     }
   }
 
   globalData = jsonData;
-  fetch('https://api.upbit.com/v1/ticker?markets=' + marketString, fetchOption)
+  fetch(apiServer + '/v1/ticker?markets=' + marketString, fetchOption)
     .then((response) => response.json())
     .then((data) => createTable(data))
     .then(() => getMarketName())
@@ -234,7 +291,9 @@ function changeMarket(jsonData) {
       document.getElementsByClassName('market-mode')[0].removeAttribute('disabled');
     })
     .then(() => webSocketConfig())
-    .catch(() => {
+    .catch((e) => {
+      alert(e);
+      console.error(e);
       createServerErrorTextCell();
     });
 }
@@ -267,8 +326,8 @@ async function setMarketName() {
 }
 
 function webSocketConfig() {
-  var wsUri = 'wss://api.upbit.com/websocket/v1';
-  websocket = new WebSocket(wsUri);
+  var marketMode = document.getElementsByName('market-mode')[0].value.toLowerCase();
+  websocket = new WebSocket(websocketServer + '/' + marketMode);
   websocket.binaryType = 'arraybuffer';
 
   websocket.onopen = function (evt) {
@@ -281,7 +340,9 @@ function webSocketConfig() {
     onMessage(evt);
   };
 
-  websocket.onerror = function () {};
+  websocket.onerror = function (error) {
+    console.error("websoccket error" + JSON.stringify(error));
+  };
 }
 
 async function onOpen() {
@@ -291,7 +352,7 @@ async function onOpen() {
   }
 
   var marketMode = await getObjectFromLocalStorage('marketMode');
-  if (marketMode == 'BTC-') code.unshift('KRW-BTC');
+  if (marketMode == 'BTC') code.unshift('KRW-BTC');
 
   var msg = [
     { ticket: 'test' },
@@ -306,11 +367,10 @@ async function onOpen() {
 }
 
 async function onMessage(evt) {
-  var enc = new TextDecoder('utf-8');
-  var jsonData = JSON.parse(enc.decode(evt.data));
+  var jsonData = JSON.parse(evt.data);
   var marketMode = document.getElementsByName('market-mode')[0].value;
 
-  if (marketMode == 'BTC-' && jsonData.code == 'KRW-BTC') {
+  if (marketMode == 'BTC' && jsonData.code == 'KRW-BTC') {
     gloablKrwBtcPrice = jsonData.trade_price;
     document.querySelectorAll('td[class=trade_price]').forEach(function (price) {
       price.getElementsByClassName('krw_trade_price')[0].innerHTML = getKrwTradePriceNumber(price.getElementsByClassName('trade_price')[0].textContent * gloablKrwBtcPrice) + ' KRW';
@@ -326,7 +386,7 @@ async function onMessage(evt) {
     maximumFractionDigits: 2,
   });
 
-  if (marketMode == 'BTC-') {
+  if (marketMode == 'BTC') {
     document.getElementById(jsonData.code).getElementsByClassName('krw_trade_price')[0].innerHTML = getKrwTradePriceNumber(jsonData.trade_price * gloablKrwBtcPrice) + ' KRW';
   }
 
@@ -345,20 +405,20 @@ async function onMessage(evt) {
   document.getElementById(jsonData.code).getElementsByClassName('acc_trade_price_24h')[0].innerHTML = getNumberUnit(jsonData.acc_trade_price_24h);
   document.getElementById(jsonData.code).className = jsonData.change;
 
-  var coinNoticeJson = (await getObjectFromLocalStorage('coinNotice')) || [];
+  // var coinNoticeJson = (await getObjectFromLocalStorage('coinNotice')) || [];
 
-  for (var key in coinNoticeJson) {
-    if (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice != jsonData.trade_price) {
-      document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
-      break;
-    } else if (coinNoticeJson[key].market != jsonData.code || (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice == jsonData.trade_price)) {
-      document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
-    }
-  }
+  // for (var key in coinNoticeJson) {
+  //   if (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice != jsonData.trade_price) {
+  //     document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.add('yellow');
+  //     break;
+  //   } else if (coinNoticeJson[key].market != jsonData.code || (coinNoticeJson[key].market == jsonData.code && coinNoticeJson[key].notice == jsonData.trade_price)) {
+  //     document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
+  //   }
+  // }
 
-  if (coinNoticeJson.length == 0) {
-    document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
-  }
+  // if (coinNoticeJson.length == 0) {
+  //   document.getElementById(jsonData.code).getElementsByClassName('notice')[0].getElementsByTagName('i')[0].classList.remove('yellow');
+  // }
 
   if (jsonData.market_warning == 'CAUTION') {
     document.getElementById(jsonData.code).getElementsByClassName('warning')[0].style.display = 'inline-block';
@@ -369,7 +429,7 @@ async function onMessage(evt) {
 
 function getPlusMinusNumber(theNumber) {
   var marketMode = document.getElementsByName('market-mode')[0].value;
-  if (marketMode == 'KRW-') {
+  if (marketMode == 'KRW') {
     if (theNumber > 0) {
       return '+' + theNumber.toLocaleString(locale, { maximumFractionDigits: 4 });
     } else {
@@ -383,12 +443,12 @@ function getPlusMinusNumber(theNumber) {
 function getNumberUnit(theNumber) {
   var marketMode = document.getElementsByName('market-mode')[0].value;
   var result;
-  if (marketMode == 'KRW-') {
+  if (marketMode == 'KRW') {
     result =
       Math.round(theNumber / 1000000).toLocaleString(locale, {
         maximumFractionDigits: 0,
       }) + '백만';
-  } else if (marketMode == 'BTC-') {
+  } else if (marketMode == 'BTC') {
     result =
       theNumber.toLocaleString('ko-KR', {
         minimumFractionDigits: 3,
@@ -414,7 +474,7 @@ function getTradePriceNumber(theNumber, marketMode) {
     maxCount = 3;
   } else if (theNumber > 0.1) {
     minCount = 4;
-  } else if (theNumber > 0.1 || marketMode == 'KRW-') {
+  } else if (theNumber > 0.1 || marketMode == 'KRW') {
     minCount = 4;
   } else {
     minCount = 8;
@@ -544,7 +604,7 @@ function createNoneBookmarkTextCell() {
   var row = document.getElementById('coinHeader').insertRow(-1);
   var cell = row.insertCell(-1);
   row.id = 'noBookmark';
-  cell.colSpan = 6;
+  cell.colSpan = 5;
   cell.style = 'text-align:center; padding: 30px 0;';
   cell.innerHTML = '즐겨찾기한 코인이 없습니다.<br/><a id="showCoinListBtn">코인 목록</a>';
   document.getElementById('showCoinListBtn').addEventListener('click', function () {
@@ -810,15 +870,17 @@ window.onload = async function () {
 
   var marketMode = await getObjectFromLocalStorage('marketMode');
   if (marketMode == undefined) {
-    saveObjectInLocalStorage({ marketMode: 'KRW-' });
+    saveObjectInLocalStorage({ marketMode: 'KRW' });
   }
 
   document.getElementById('searchCoinInput').focus();
 
-  fetch(url, fetchOption)
+  fetch(apiServer + '/v1/market/all', fetchOption)
     .then((response) => response.json())
     .then((data) => init(data))
-    .catch(() => {
+    .catch((e) => {
+      alert(e);
+      console.error(e);
       createServerErrorTextCell();
     });
 
