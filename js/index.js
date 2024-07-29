@@ -1,5 +1,6 @@
 var apiServer = 'https://barak-api-server.onrender.com/api';
-var websocketServer = 'wss://barak-api-server.onrender.com/ws'
+var barakWebsocketServer = 'wss://barak-api-server.onrender.com/ws'
+var upbitWebsocketServer = 'wss://api.upbit.com/websocket/v1';
 var globalData;
 var globalDataAll;
 var websocket;
@@ -343,23 +344,46 @@ async function setMarketName() {
 }
 
 function webSocketConfig() {
-  var marketMode = document.getElementsByName('market-mode')[0].value.toLowerCase();
-  websocket = new WebSocket(websocketServer + '/' + marketMode);
-  websocket.binaryType = 'arraybuffer';
+  var maxRetries = 20;
+  var retryCount = 0;
 
-  websocket.onopen = function (evt) {
-    onOpen(evt);
-  };
+  function connect(websoccketServer) {
+    if (websocket) {
+      websocket.close();
+    }
 
-  websocket.onclose = function () {};
+    websocket = new WebSocket(websoccketServer);
+    websocket.binaryType = 'arraybuffer';
 
-  websocket.onmessage = function (evt) {
-    onMessage(evt);
-  };
+    websocket.onopen = function (evt) {
+      onOpen(evt);
+      retryCount = 0;
+    };
 
-  websocket.onerror = function (error) {
-    console.error("websoccket error" + JSON.stringify(error));
-  };
+    websocket.onclose = function (e) {
+    };
+
+    websocket.onmessage = function (evt) {
+      onMessage(evt);
+    };
+
+    websocket.onerror = function (e) {
+      console.log('Connection Error', e);
+      if (retryCount < maxRetries) {
+        retryCount++;
+        console.log(`Reconnecting in ${retryCount} seconds...`);
+        setTimeout(function() {
+          connect(upbitWebsocketServer);
+        }, 100);
+      } else {
+        console.log('Max retries reached. Could not connect to WebSocket.');
+        var marketMode = document.getElementsByName('market-mode')[0].value.toLowerCase();
+        connect(barakWebsocketServer + '/' + marketMode);
+      }
+    };
+  }
+
+  connect(upbitWebsocketServer);
 }
 
 async function onOpen() {
@@ -372,7 +396,7 @@ async function onOpen() {
   if (marketMode == 'BTC') code.unshift('KRW-BTC');
 
   var msg = [
-    { ticket: 'test' },
+    { ticket: generateRandomValue() },
     {
       type: 'ticker',
       codes: code,
@@ -384,7 +408,13 @@ async function onOpen() {
 }
 
 async function onMessage(evt) {
-  var jsonData = JSON.parse(evt.data);
+  var jsonData;
+  if (evt.data instanceof ArrayBuffer) {
+    var enc = new TextDecoder('utf-8');
+    jsonData = JSON.parse(enc.decode(evt.data));
+  } else if (typeof evt.data === 'string') {
+    jsonData = JSON.parse(evt.data);
+  }
   var marketMode = document.getElementsByName('market-mode')[0].value;
 
   if (marketMode == 'BTC' && jsonData.code == 'KRW-BTC') {
@@ -845,6 +875,12 @@ function colorModePreview(ele) {
     saveObjectInLocalStorage({ 'color-theme': 'light' });
     document.getElementsByTagName('body')[0].classList = 'white-preview';
   }
+}
+
+function generateRandomValue() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  );
 }
 
 window.onload = async function () {
