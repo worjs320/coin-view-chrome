@@ -344,7 +344,7 @@ async function setMarketName() {
 }
 
 function webSocketConfig() {
-  var maxRetries = 20;
+  var maxRetries = 10;
   var retryCount = 0;
 
   function connect(websoccketServer) {
